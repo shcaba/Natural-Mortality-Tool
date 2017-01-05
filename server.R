@@ -166,9 +166,14 @@ shinyServer(
    M.sub.n0<-M.sub[M.wts.sub>0]
    M.wts.sub.n0<-M.wts.sub[M.wts.sub>0]
    M.wts.sub.stand<-M.wts.sub.n0/sum(M.wts.sub.n0)
-   M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,from=0)
+   M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,cut=0)
    M.densum.plot<- data.frame(x = M.densum$x, y = M.densum$y)
-   Mcomposite.densityplot<- ggplot(data=M.densum.plot,aes(x,y,fill="blue"))+geom_line(col="black")+labs(x="Natural Mortality",y="Density")+ geom_area(fill="gray")+ geom_vline(xintercept = quantile(M.densum$x,0.5),color="darkblue",size=1.2)
+   Mcomposite.densityplot<- ggplot(data=M.densum.plot,aes(x,y,fill="blue"))+
+     geom_line(col="black")+
+     labs(x="Natural Mortality",y="Density")+ 
+     geom_area(fill="gray")+ 
+     #scale_x_continuous(limits=c(0,quantile(M.densum$x,0.99)))+
+     geom_vline(xintercept = quantile(M.densum$x,0.5),color="darkblue",size=1.2)
    print(Mcomposite.densityplot)
    output$downloadMcompositedensityplot <- downloadHandler(
    filename = function() { paste0('Mcomposite_densityplot',Sys.time(), '.png')},
