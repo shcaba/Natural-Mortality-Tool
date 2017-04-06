@@ -166,14 +166,23 @@ shinyServer(
    M.sub.n0<-M.sub[M.wts.sub>0]
    M.wts.sub.n0<-M.wts.sub[M.wts.sub>0]
    M.wts.sub.stand<-M.wts.sub.n0/sum(M.wts.sub.n0)
-   M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,cut=0)
+   M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,from=0,cut=0)
+   #Approximate the denisty function
+   f<- approxfun(M.densum$x, M.densum$y, yleft=0, yright=0)
+   #Standardize densities
+   pdf_counts<-round(100000*(M.densum$y/sum(M.densum$y)))
+   #Expand densities to samples
+   pdf.samples<-unlist(mapply(rep,M.densum$x,pdf_counts))
+   #Calculate the cdf
+   cdf.out<-ecdf(pdf.samples)
+   #Plot the density function
    M.densum.plot<- data.frame(x = M.densum$x, y = M.densum$y)
    Mcomposite.densityplot<- ggplot(data=M.densum.plot,aes(x,y,fill="blue"))+
      geom_line(col="black")+
      labs(x="Natural Mortality",y="Density")+ 
      geom_area(fill="gray")+ 
      #scale_x_continuous(limits=c(0,quantile(M.densum$x,0.99)))+
-     geom_vline(xintercept = quantile(M.densum$x,0.5),color="darkblue",size=1.2)
+     geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
    print(Mcomposite.densityplot)
    output$downloadMcompositedensityplot <- downloadHandler(
    filename = function() { paste0('Mcomposite_densityplot',Sys.time(), '.png')},
@@ -182,8 +191,8 @@ shinyServer(
      print(Mcomposite.densityplot)
      dev.off()},contentType = 'image/png') 
    output$downloadMcompositedist <- downloadHandler(
-     filename = function() {  paste0("Mcomposite",Sys.time(),".DMP") },
-     content = function(file) {save(M.densum,file=file)}) 
+     filename = function() {  paste0("Mcomposite_samples",Sys.time(),".DMP") },
+     content = function(file) {save(pdf.samples,file=file)}) 
     }
    })
   }
