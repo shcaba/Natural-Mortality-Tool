@@ -25,7 +25,8 @@ shinyUI(
         numericInput("Wwet","Total wet weight (in g):" ,value=NA,min = 0.01, max = 1000000,step=0.01),
         numericInput("Bl","Body length (cm):",value=NA,min = 0.01, max = 10000,step=0.01),
         numericInput("GSI","Gonadosomatic index:",value=NA,min = 0, max = 1,step=0.001),
-       
+        numericInput("User_M","User M input:",value=NA,min = 0, max = 10,step=0.001),
+         
        br(),
        br(),
        
@@ -60,8 +61,9 @@ shinyUI(
           ),
           fluidRow(
             column(4,numericInput("Lorenzen","Lorenzen",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001)))
-          )
+            column(4,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("UserM","User M",value=1,min = 0, max = 1,step=0.001)))
+       )
        ),
          mainPanel(
           h4("Natural mortality (M) estimates by method"),
@@ -71,6 +73,7 @@ shinyUI(
             column(6,tableOutput("Mtable")),
             column(6,tableOutput("Mtable2")),
             downloadButton('downloadMs', 'Download M values'),
+            downloadButton('downloadCW_M_a', 'Download Chen-Wat. age-specific M values'),
             br(),
             br(),
             br(),
