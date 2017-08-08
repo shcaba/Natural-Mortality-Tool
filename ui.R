@@ -33,31 +33,33 @@ shinyUI(
        h3("Composite M: method weighting"),
        h5(p(em("Allows for weighting of the contribution of each method in the composite M distribution"))),
        h5("Values range from 0 to 1. A value of 0 removes the contribution; a value of 1 is full weighting."),
+       h5("Default values are based on redundancies of methods using similar information."),
+       h5("For instance,the four max. age methods are given a weight of 0.25, so all weighted together equal 1"),
        wellPanel(
           fluidRow(
-            column(4,numericInput("Then_Amax_1","Then_Amax 1",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Then_Amax_2","Then_Amax 2",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Then_Amax_3","Then_Amax 3",value=1,min = 0, max = 1,step=0.001))
+            column(4,numericInput("Then_Amax_1","Then_Amax 1",value=0.25,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Then_Amax_2","Then_Amax 2",value=0.25,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Then_Amax_3","Then_Amax 3",value=0.25,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("Hamel_Amax","Hamel_Amax",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("AnC","AnC",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Then_VBGF","Then_VBGF",value=1,min = 0, max = 1,step=0.001))
+            column(4,numericInput("Hamel_Amax","Hamel_Amax",value=0.25,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("AnC","AnC",value=0,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Then_VBGF","Then_VBGF",value=0.34,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("Jensen_VBGF_1","Jensen_VBGF 1",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Jensen_VBGF_2","Jensen_VBGF 2",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Pauly_lt","Pauly_lt",value=1,min = 0, max = 1,step=0.001))
+            column(4,numericInput("Jensen_VBGF_1","Jensen_VBGF 1",value=0.33,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Jensen_VBGF_2","Jensen_VBGF 2",value=0.33,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Pauly_lt","Pauly_lt",value=0.5,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
             column(4,numericInput("Gislason","Gislason",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Chen_Wat","Chen-Wat",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Roff","Roff",value=1,min = 0, max = 1,step=0.001))
+            column(4,numericInput("Chen_Wat","Chen-Wat",value=0.5,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Roff","Roff",value=0.5,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("Jensen_Amat","Jensen_Amat",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Pauly_wt","Pauly_wt",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("PnW","PnW",value=1,min = 0, max = 1,step=0.001))
+            column(4,numericInput("Jensen_Amat","Jensen_Amat",value=0.5,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Pauly_wt","Pauly_wt",value=0.5,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("PnW","PnW",value=0.5,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
             column(4,numericInput("Lorenzen","Lorenzen",value=1,min = 0, max = 1,step=0.001)),
