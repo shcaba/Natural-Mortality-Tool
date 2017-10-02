@@ -58,14 +58,17 @@ shinyUI(
           ),
           fluidRow(
             column(4,numericInput("Jensen_Amat","Jensen_Amat",value=0.5,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Pauly_wt","Pauly_wt",value=0.5,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("PnW","PnW",value=0.5,min = 0, max = 1,step=0.001))
+            column(4,numericInput("Ri_Ef_Amat","Ri_Ef_Amat",value=0.5,min = 0, max = 1,step=0.001)),
+            column(4,numericInput("Pauly_wt","Pauly_wt",value=0.5,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
+            column(4,numericInput("PnW","PnW",value=0.5,min = 0, max = 1,step=0.001)),
             column(4,numericInput("Lorenzen","Lorenzen",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("UserM","User M",value=1,min = 0, max = 1,step=0.001)))
-       )
+            column(4,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001))
+        ),
+         fluidRow(
+           column(4,numericInput("UserM","User M",value=1,min = 0, max = 1,step=0.001)))
+        )
        ),
          mainPanel(
           h4("Natural mortality (M) estimates by method"),
