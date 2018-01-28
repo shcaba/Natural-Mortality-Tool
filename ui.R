@@ -85,7 +85,7 @@ shinyUI(
             h4("Composite natural mortality"),
             h5(p(em("Blue vertical line indicates median value"))),
             plotOutput("Mcomposite"),
-            downloadButton('downloadMcompositedensityplot', 'Download composite M denisty plot'),
+            downloadButton('downloadMcompositedensityplot', 'Download composite M density plot'),
             downloadButton('downloadMcompositedist', 'Download composite M for resampling')
           )
         )
