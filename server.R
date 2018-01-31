@@ -199,7 +199,7 @@ shinyServer(
    #Approximate the denisty function
    f<- approxfun(M.densum$x, M.densum$y, yleft=0, yright=0)
    #Standardize densities
-   pdf_counts<-round(100000*(M.densum$y/sum(M.densum$y)))
+   pdf_counts<-round(1000000*(M.densum$y/sum(M.densum$y)))
    #Expand densities to samples
    pdf.samples<-unlist(mapply(rep,M.densum$x,pdf_counts))
    #Calculate the cdf
