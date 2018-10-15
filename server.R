@@ -103,16 +103,28 @@ shinyServer(
         
    output$Mplot <- renderPlot({
    M_vals_all<-M_vals_all()
+   print(M_vals_all())
    M_methods<-c("Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Pauly_lt","Gislason","Chen-Wat","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI","User input")
-  # plot M
+   M_types<-c(rep("Amax",4),rep("VBGF",4),rep("VBGF:Temp",2),"VBGF;Amat",rep("Amat",3),rep("Weight",3),rep("GSI",1),"User input")
+   M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
+   colnames(M_vals_gg)<-c("M","Method","Input")
+   M_vals_gg$Method<-factor(M_vals_gg$Method,levels=unique(M_vals_gg$Method))
+   M_vals_gg$Input<-factor(M_vals_gg$Input,levels=unique(M_vals_gg$Input))     
+   # plot M
    if(all(is.na(M_vals_all))){ymax<-0.5}
    if(!(all(is.na(M_vals_all)))){ymax<-ceiling((max(M_vals_all,na.rm=TRUE)*1.1*10))/10}
-   par(mar=c(8,4,2,6),xpd =TRUE)
-   plot(M_vals_all, col = "black",bg=c("blue","blue","blue","blue","green","green","green","green","yellow","yellow","orange","red","red","red","black","black","black","purple","brown"),xlab=" ",ylab="Natural mortality",ylim=c(0,ymax),pch=22,cex=1.5,axes=F)
-   box()
-   axis(1,at=1:length(M_vals_all),labels=M_methods,las=3)
-   axis(2)
-   legend(x="topright",legend=c("Amax","VBGF","VBGF:Temp","VBGF;Amat","Amat","Weight","GSI","User input"),pch=22,col="black",pt.bg=c("blue","green","yellow","orange","red","black","purple","brown"),bty="n",horiz=FALSE,cex=1,inset=c(-0.125,0))
+   
+   #ggplot(M_vals_gg,aes(Method,as.numeric(Mvals),color=Mtype))+geom_point(size=2)+ylab("M")+xlab("Method")+theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))
+   print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
+           geom_point(size=4)+ylab("M")+xlab("Method")+
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5)))
+       
+   #par(mar=c(8,4,2,6),xpd =TRUE)
+   #plot(M_vals_all, col = "black",bg=c("blue","blue","blue","blue","green","green","green","green","yellow","yellow","orange","red","red","red","black","black","black","purple","brown"),xlab=" ",ylab="Natural mortality",ylim=c(0,ymax),pch=22,cex=1.5,axes=F)
+   #box()
+   #axis(1,at=1:length(M_vals_all),labels=M_methods,las=3)
+   #axis(2)
+   #legend(x="topright",legend=c("Amax","VBGF","VBGF:Temp","VBGF;Amat","Amat","Weight","GSI","User input"),pch=22,col="black",pt.bg=c("blue","green","yellow","orange","red","black","purple","brown"),bty="n",horiz=FALSE,cex=1,inset=c(-0.125,0))
    M_table<-data.frame(cbind(M_methods,M_vals_all))
    colnames(M_table)<-c("Method","M")
   # if(all(is.na(M_vals()))){return(NULL)}
