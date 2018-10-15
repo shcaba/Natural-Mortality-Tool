@@ -103,7 +103,6 @@ shinyServer(
         
    output$Mplot <- renderPlot({
    M_vals_all<-M_vals_all()
-   print(M_vals_all())
    M_methods<-c("Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Pauly_lt","Gislason","Chen-Wat","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI","User input")
    M_types<-c(rep("Amax",4),rep("VBGF",4),rep("VBGF:Temp",2),"VBGF;Amat",rep("Amat",3),rep("Weight",3),rep("GSI",1),"User input")
    M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
