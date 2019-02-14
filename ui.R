@@ -15,7 +15,7 @@ shinyUI(
        (
         numericInput("Amax", "Maximum age (years):", value=NA,min=1, max=300, step=0.1),    
         numericInput("Linf","Linf (in cm):", value=NA,min=1, max=1000, step=0.01),
-        numericInput("k", "VBGF Growth coeff. k:", value=NA,min = 0.001, max = 1,step=0.01),
+        numericInput("k_vbgf", "VBGF Growth coeff. k:", value=NA,min = 0.001, max = 1,step=0.01),
         numericInput("t0", "VBGF age at size 0 (t_0)", value=NA,min = -15, max = 15,step=0.01),
         numericInput("Amat","Age at maturity (years)", value=NA,min = 0.01, max = 100,step=0.01),
         numericInput("Winf","Asym. weight (Winf, in g):", value=NA,min = 0, max = 100000,step=0.1),

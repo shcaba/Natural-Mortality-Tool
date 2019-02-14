@@ -70,22 +70,22 @@ shinyServer(
  M_vals_all<- reactive({
    Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
    Then_M_Amax<-Then_M(input$Amax)
-   if(!(anyNA(c(input$k,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k,tmax=input$Amax,method=4)[1]}
-   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k)
-   Jensen_M_VBGF<-Jensen_M_k(input$k) 
-   if(!(anyNA(c(input$Linf,input$k,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k,Bl=input$Bl,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k,input$t0)
-   CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k,input$t0,out.type = 0)
+   if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
+   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
+   Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0)
+   CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0,out.type = 0)
    maxage<-input$Amax
    if(!is.na(maxage)){CnW_M_a_VBGF_table<-cbind(c(1:maxage),CnW_M_a_VBGF)
    colnames(CnW_M_a_VBGF_table)<-c("Age","M")}
-   if(!(anyNA(c(input$k,input$Amat)))){Roff_M<-M.empirical(Kl=input$k,tm=input$Amat,method=5)[1]}
+   if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
    if(!(anyNA(c(input$Wdry)))){PnW_M<-M.empirical(Wdry=input$Wdry,method=7)[1]}
    if(!(anyNA(c(input$Wwet)))){Lorenzen96_M<-M.empirical(Wwet=input$Wwet,method=8)[1]}
-   if(!(anyNA(c(input$Linf,input$k,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k,T=input$Temp,method=1)[1]}
-   if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,T=input$Temp,method=2)[1]}
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
+   if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
    User_M<-input$User_M
    M_vals_all<-c(Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Pauly80lt_M,Gislason_M,CnW_M_VBGF,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
@@ -137,18 +137,18 @@ shinyServer(
  output$Mtable <- renderTable({
    Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
    Then_M_Amax<-Then_M(input$Amax)
-   if(!(anyNA(c(input$k,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k,tmax=input$Amax,method=4)[1]}
-   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k)
-   Jensen_M_VBGF<-Jensen_M_k(input$k) 
-   if(!(anyNA(c(input$Linf,input$k,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k,Bl=input$Bl,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k,input$t0)
-   if(!(anyNA(c(input$k,input$Amat)))){Roff_M<-M.empirical(Kl=input$k,tm=input$Amat,method=5)[1]}
+   if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
+   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
+   Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0)
+   if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
    if(!(anyNA(c(input$Wdry)))){PnW_M<-M.empirical(Wdry=input$Wdry,method=7)[1]}
    if(!(anyNA(c(input$Wwet)))){Lorenzen96_M<-M.empirical(Wwet=input$Wwet,method=8)[1]}
-   if(!(anyNA(c(input$Linf,input$k,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k,T=input$Temp,method=1)[1]}
-   if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,T=input$Temp,method=2)[1]}
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
+   if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
   
    M_vals_all<-c(Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF)
@@ -162,18 +162,18 @@ shinyServer(
  output$Mtable2 <- renderTable({
    Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
    Then_M_Amax<-Then_M(input$Amax)
-   if(!(anyNA(c(input$k,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k,tmax=input$Amax,method=4)[1]}
-   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k)
-   Jensen_M_VBGF<-Jensen_M_k(input$k) 
-   if(!(anyNA(c(input$Linf,input$k,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k,Bl=input$Bl,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k,input$t0)
-   if(!(anyNA(c(input$k,input$Amat)))){Roff_M<-M.empirical(Kl=input$k,tm=input$Amat,method=5)[1]}
+   if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
+   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
+   Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0)
+   if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
    if(!(anyNA(c(input$Wdry)))){PnW_M<-M.empirical(Wdry=input$Wdry,method=7)[1]}
    if(!(anyNA(c(input$Wwet)))){Lorenzen96_M<-M.empirical(Wwet=input$Wwet,method=8)[1]}
-   if(!(anyNA(c(input$Linf,input$k,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k,T=input$Temp,method=1)[1]}
-   if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,T=input$Temp,method=2)[1]}
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
+   if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
    User_M<-input$User_M
    
