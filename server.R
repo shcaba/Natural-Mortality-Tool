@@ -63,12 +63,44 @@ shinyServer(
       }
       return(M.out)
     }
+
+fishlife.M <- function(species){
+  # Setup container
+  spp <- sort(unique(species))
+  fl <- data.frame(species=spp, linf_cm=NA, k=NA, winf_g=NA, tmax_yr=NA, tmat_yr=NA,
+                   m=NA, lmat_cm=NA, temp_c=NA, stringsAsFactors=F)
+
+  # Loop through species
+  for(i in 1:nrow(fl)){
+
+    # Get spp info
+    sciname <- fl$species[i]
+    genus <- stringr::word(sciname, 1)
+    nwords_in_spp <- length(strsplit(sciname, " ")[[1]])
+    species <- stringr::word(sciname, start=2, end=nwords_in_spp)
+    species <- ifelse(species=="spp", "predictive", species)
+
+    # Try looking up in FishLife
+    spp_info <- try(FishLife::Plot_taxa(FishLife::Search_species(Genus=genus, Species=species)$match_taxonomy))
+    if(inherits(spp_info, "try-error")){
+      # Record blanks
+    }else{
+      # Values are in log-scale except temperature
+      spp_lh_vals_log <- spp_info[[1]]$Mean_pred
+      spp_lh_vals <- c(exp(spp_lh_vals_log[1:7]), spp_lh_vals_log[8],spp_lh_vals_log[9:20])
+    }
+  }
+
+  # Return
+  return(as.numeric(spp_lh_vals)[6])
+}
     
 ####### END FUNCTIONS ########
     
     
  M_vals_all<- reactive({
-   Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
    Then_M_Amax<-Then_M(input$Amax)
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
@@ -88,7 +120,7 @@ shinyServer(
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
    User_M<-input$User_M
-   M_vals_all<-c(Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Pauly80lt_M,Gislason_M,CnW_M_VBGF,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Pauly80lt_M,Gislason_M,CnW_M_VBGF,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
    output$downloadCW_M_a <- downloadHandler(
      filename = function() {paste0("CW_M_a_values", '.csv') },
      content = function(file) {write.csv(CnW_M_a_VBGF_table, file=file)}
@@ -103,8 +135,8 @@ shinyServer(
         
    output$Mplot <- renderPlot({
    M_vals_all<-M_vals_all()
-   M_methods<-c("Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Pauly_lt","Gislason","Chen-Wat","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI","User input")
-   M_types<-c(rep("Amax",4),rep("VBGF",4),rep("VBGF:Temp",2),"VBGF;Amat",rep("Amat",3),rep("Weight",3),rep("GSI",1),"User input")
+   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Pauly_lt","Gislason","Chen-Wat","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI","User input")
+   M_types<-c("Meta-analysis",rep("Amax",4),rep("VBGF",4),rep("VBGF:Temp",2),"VBGF;Amat",rep("Amat",3),rep("Weight",3),rep("GSI",1),"User input")
    M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
    colnames(M_vals_gg)<-c("M","Method","Input")
    M_vals_gg$Method<-factor(M_vals_gg$Method,levels=unique(M_vals_gg$Method))
@@ -135,7 +167,8 @@ shinyServer(
 
 # Show the first "n" observations
  output$Mtable <- renderTable({
-   Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
    Then_M_Amax<-Then_M(input$Amax)
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
@@ -151,8 +184,8 @@ shinyServer(
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
   
-   M_vals_all<-c(Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF)
-   M_methods<-c("Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2")
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF)
+   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
    colnames(M_table)<-c("Methods","M")
    #rownames(M_table)<-M_methods
@@ -160,7 +193,8 @@ shinyServer(
   })
 # Show the first "n" observations
  output$Mtable2 <- renderTable({
-   Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
    Then_M_Amax<-Then_M(input$Amax)
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
