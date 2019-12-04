@@ -35,7 +35,6 @@ shinyServer(
     }
     
     #Rikhter & Efanov
-
     Rikhter_Efanov_Amat_M<-function(Amat)
       {
         M_val_RiEf<-(1.52/Amat^0.72)-0.16
@@ -43,7 +42,7 @@ shinyServer(
       }
     
         
-    Chen_N_Wat_M<-function(Amax,Amat,k,t0,out.type=1)
+    Chen_N_Wat_M<-function(Amax,k,t0,out.type=1)
     {
       if(anyNA(c(Amax,k,t0))){M.out<-NA}
       else
@@ -106,8 +105,8 @@ fishlife.M <- function(species){
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0)
-   CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0,out.type = 0)
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
+   CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0,out.type = 0)
    maxage<-input$Amax
    if(!is.na(maxage)){CnW_M_a_VBGF_table<-cbind(c(1:maxage),CnW_M_a_VBGF)
    colnames(CnW_M_a_VBGF_table)<-c("Age","M")}
@@ -120,7 +119,7 @@ fishlife.M <- function(species){
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
    User_M<-input$User_M
-   M_vals_all<-c(fishlife.M.out,Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Pauly80lt_M,Gislason_M,CnW_M_VBGF,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
    output$downloadCW_M_a <- downloadHandler(
      filename = function() {paste0("CW_M_a_values", '.csv') },
      content = function(file) {write.csv(CnW_M_a_VBGF_table, file=file)}
@@ -135,8 +134,8 @@ fishlife.M <- function(species){
         
    output$Mplot <- renderPlot({
    M_vals_all<-M_vals_all()
-   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Pauly_lt","Gislason","Chen-Wat","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI","User input")
-   M_types<-c("Meta-analysis",rep("Amax",4),rep("VBGF",4),rep("VBGF:Temp",2),"VBGF;Amat",rep("Amat",3),rep("Weight",3),rep("GSI",1),"User input")
+   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI","User input")
+   M_types<-c("Meta-analysis",rep("Amax",4),rep("Amax:VBGF",2),rep("VBGF",4),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",3),rep("GSI",1),"User input")
    M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
    colnames(M_vals_gg)<-c("M","Method","Input")
    M_vals_gg$Method<-factor(M_vals_gg$Method,levels=unique(M_vals_gg$Method))
@@ -174,7 +173,7 @@ fishlife.M <- function(species){
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0)
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
@@ -184,8 +183,8 @@ fishlife.M <- function(species){
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
   
-   M_vals_all<-c(fishlife.M.out,Then_M_Amax,AnC75_M,Then_M_VBGF,Jensen_M_VBGF)
-   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2")
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M)
+   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
    colnames(M_table)<-c("Methods","M")
    #rownames(M_table)<-M_methods
@@ -200,7 +199,7 @@ fishlife.M <- function(species){
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k_vbgf,input$t0)
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
@@ -211,8 +210,8 @@ fishlife.M <- function(species){
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
    User_M<-input$User_M
    
-   M_vals_all<-c(Pauly80lt_M,Pauly80wt_M,Gislason_M,CnW_M_VBGF,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
-   M_methods<-c("Pauly_lt","Pauly_wt","Gislason","Chen-Wat","Roff","Jensen_Amat","Ri_Ef_Amat","PnW","Lorenzen","GSI","User input")
+   M_vals_all<-c(Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M)
+   M_methods<-c("Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI")
    M_table<-data.frame(M_vals_all)
    #rownames(M_table)<-M_methods
    #colnames(M_table)<-"M"
@@ -220,6 +219,16 @@ fishlife.M <- function(species){
    colnames(M_table)<-c("Methods","M")
    M_table
  })
+
+ output$MtableUser <- renderTable({
+   User_M<-input$User_M
+   M_methods<-paste0("User input_",c(1:length(User_M)))
+   M_table<-data.frame(User_M)
+   M_table_User<-data.frame(cbind(M_methods,signif(User_M,3)))
+   colnames(M_table_User)<-c("Methods","M")
+   M_table_User
+ })
+
 
 #Plot Composite M
  output$Mcomposite<- renderPlot({    

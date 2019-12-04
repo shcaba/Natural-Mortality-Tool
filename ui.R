@@ -6,6 +6,8 @@ shinyUI(
     h5(p(em("This tool employs various empirical estimators of natural mortality."))),
     h5(p(em("As the user enters values for the below input parameters,"))), 
     h5(p(em("estimates will be displayed in the main panel."))),
+    h5(p(em("Uncertainty can also be added to the estimates by chosing"))),
+    h5(p(em("a coefficient of variation (CV) value and error distribution type."))),
     br(),
     h4(p("References for each method can be found",tags$a(href="javascript:window.open('References_M.html', '_blank','width=600,height=400')", "here"))),
     
@@ -13,9 +15,9 @@ shinyUI(
     sidebarLayout(
         sidebarPanel
        (
-        textInput("Genspp","Scientific name",value="Type Genus and species here"),
-        fluidRow(column(width=6,numericInput("Amax_CV", "CV in M", value=NA,min=0, max=10, step=0.1)),
+        fluidRow(column(width=6,numericInput("Amax_CV", "CV in M", value=0,min=0, max=10, step=0.1)),
             column(width=6,selectInput("Amax_CV_type","Error type",c("normal","lognormal")))),    
+        textInput("Genspp","Scientific name",value="Type Genus and species here"),
         fluidRow(column(width=6,numericInput("Amax", "Longevity (yrs):", value=NA,min=1, max=300, step=0.1)),
             column(width=6,numericInput("Linf","VBGF Linf (in cm):", value=NA,min=1, max=1000, step=0.01))),    
         fluidRow(column(6,numericInput("k_vbgf", "VBGF k:", value=NA,min = 0.001, max = 1,step=0.01)),
@@ -35,6 +37,9 @@ shinyUI(
        br(),
        br(),       
        br(),
+       br(),
+       br(),
+       br(),
        
        
        h3("Composite M: method weighting"),
@@ -44,37 +49,47 @@ shinyUI(
        h5("For instance,the four max. age methods are given a weight of 0.25, so all weighted together equal 1"),
        wellPanel(
           fluidRow(
-            column(4,numericInput("Then_Amax_1","Then_Amax 1",value=0.25,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Then_Amax_2","Then_Amax 2",value=0.25,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Then_Amax_3","Then_Amax 3",value=0.25,min = 0, max = 1,step=0.001))
+            column(6,numericInput("FishLife","FishLife",value=0.25,min = 0, max = 1,step=0.001))
+          ),
+#          h5("Uses longevity")
+          fluidRow(
+            column(6,numericInput("Then_Amax_1","Then_Amax 1",value=0.25,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Then_Amax_2","Then_Amax 2",value=0.25,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("Hamel_Amax","Hamel_Amax",value=0.25,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("AnC","AnC",value=0,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Then_VBGF","Then_VBGF",value=0.34,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Then_Amax_3","Then_Amax 3",value=0.25,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Hamel_Amax","Hamel_Amax",value=0.25,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("Jensen_VBGF_1","Jensen_VBGF 1",value=0.33,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Jensen_VBGF_2","Jensen_VBGF 2",value=0.33,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Pauly_lt","Pauly_lt",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Chen_Wat","Chen-Wat",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("AnC","AnC",value=0,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("Gislason","Gislason",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Chen_Wat","Chen-Wat",value=0.5,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Roff","Roff",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Then_VBGF","Then_VBGF",value=0.34,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Jensen_VBGF_1","Jensen_VBGF 1",value=0.33,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("Jensen_Amat","Jensen_Amat",value=0.5,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Ri_Ef_Amat","Ri_Ef_Amat",value=0.5,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Pauly_wt","Pauly_wt",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Jensen_VBGF_2","Jensen_VBGF 2",value=0.33,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Gislason","Gislason",value=1,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(4,numericInput("PnW","PnW",value=0.5,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Lorenzen","Lorenzen",value=1,min = 0, max = 1,step=0.001)),
-            column(4,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Pauly_lt","Pauly_lt",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Roff","Roff",value=0.5,min = 0, max = 1,step=0.001))
+          ),
+          fluidRow(
+            column(6,numericInput("Jensen_Amat","Jensen_Amat",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Ri_Ef_Amat","Ri_Ef_Amat",value=0.5,min = 0, max = 1,step=0.001))
+          ),
+          fluidRow(
+            column(6,numericInput("Pauly_wt","Pauly_wt",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("PnW","PnW",value=0.5,min = 0, max = 1,step=0.001))
+        ),
+          fluidRow(
+            column(6,numericInput("Lorenzen","Lorenzen",value=1,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001))
         ),
          fluidRow(
-           column(4,numericInput("UserM","User M",value=1,min = 0, max = 1,step=0.001)))
+           column(6,numericInput("UserM","User M",value=1,min = 0, max = 1,step=0.001)))
         )
        ),
          mainPanel(
@@ -82,8 +97,9 @@ shinyUI(
           plotOutput("Mplot"),
           h4("Natural mortality (M) values"),
           fluidRow(
-            column(6,tableOutput("Mtable")),
-            column(6,tableOutput("Mtable2")),
+            column(4,tableOutput("Mtable")),
+            column(4,tableOutput("Mtable2")),
+            column(4,tableOutput("MtableUser")),
             downloadButton('downloadMs', 'Download M values'),
             downloadButton('downloadCW_M_a', 'Download Chen-Wat. age-specific M values'),
             br(),
