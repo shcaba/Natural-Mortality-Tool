@@ -17,7 +17,7 @@ shinyUI(
        (
         fluidRow(column(width=6,numericInput("Amax_CV", "CV in M", value=0,min=0, max=10, step=0.1)),
             column(width=6,selectInput("Amax_CV_type","Error type",c("normal","lognormal")))),    
-        textInput("Genspp","Scientific name",value="Type Genus and species here"),
+         textInput("Genspp","Scientific name",value=""),
         fluidRow(column(width=6,numericInput("Amax", "Longevity (yrs):", value=NA,min=1, max=300, step=0.1)),
             column(width=6,numericInput("Linf","VBGF Linf (in cm):", value=NA,min=1, max=1000, step=0.01))),    
         fluidRow(column(6,numericInput("k_vbgf", "VBGF k:", value=NA,min = 0.001, max = 1,step=0.01)),
@@ -49,7 +49,7 @@ shinyUI(
        h5("For instance,the four max. age methods are given a weight of 0.25, so all weighted together equal 1"),
        wellPanel(
           fluidRow(
-            column(6,numericInput("FishLife","FishLife",value=0.25,min = 0, max = 1,step=0.001))
+            column(6,numericInput("FishLife","FishLife",value=1,min = 0, max = 1,step=0.001))
           ),
 #          h5("Uses longevity")
           fluidRow(
