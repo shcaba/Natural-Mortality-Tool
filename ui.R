@@ -10,6 +10,7 @@ shinyUI(
     h5(p(em("a coefficient of variation (CV) value and error distribution type."))),
     br(),
     h4(p("References for each method can be found",tags$a(href="javascript:window.open('References_M.html', '_blank','width=600,height=400')", "here"))),
+    h4(p("Input requirements for each method can be found",tags$a(href="javascript:window.open('Method_inputs.html', '_blank','width=600,height=400')", "here"))),
     
     headerPanel("Input parameters"),
     sidebarLayout(
