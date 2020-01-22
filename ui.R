@@ -1,6 +1,6 @@
 library(shiny)
 
-shinyUI(
+#shinyUI(
   fluidPage(
     titlePanel("Estimating Natural Mortality (M)"),
     h5(p(em("This tool employs various empirical estimators of natural mortality."))),
@@ -16,8 +16,8 @@ shinyUI(
     sidebarLayout(
         sidebarPanel
        (
-        fluidRow(column(width=6,numericInput("Amax_CV", "CV in M", value=0,min=0, max=10, step=0.1)),
-            column(width=6,selectInput("Amax_CV_type","Error type",c("normal","lognormal")))),    
+        fluidRow(column(width=6,numericInput("M_CV", "CV in M", value=0,min=0, max=10, step=0.1)),
+            column(width=6,selectInput("M_CV_type","Error type",c("normal","lognormal")))),    
          textInput("Genspp","Scientific name",value=""),
         fluidRow(column(width=6,numericInput("Amax", "Longevity (yrs):", value=NA,min=1, max=300, step=0.1)),
             column(width=6,numericInput("Linf","VBGF Linf (in cm):", value=NA,min=1, max=1000, step=0.01))),    
@@ -90,7 +90,7 @@ shinyUI(
             column(6,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001))
         ),
          fluidRow(
-           column(6,numericInput("UserM","User M",value=1,min = 0, max = 1,step=0.001)))
+           column(6,numericInput("UserM_wt","User M",value=1,min = 0, max = 1,step=0.001)))
         )
        ),
          mainPanel(
@@ -117,4 +117,4 @@ shinyUI(
         )
     ) 
 )
-)
+#)

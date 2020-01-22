@@ -2,7 +2,7 @@ require(shiny)
 require(fishmethods)
 require(ggplot2)
 
-shinyServer(
+#shinyServer(
   function(input, output) 
   {    
     
@@ -82,7 +82,7 @@ fishlife.M <- function(species){
         species <- ifelse(species=="spp", "predictive", species)
         
         # Try looking up in FishLife
-        spp_info <- try(FishLife::Plot_taxa(FishLife::Search_species(Genus=genus, Species=species)$match_taxonomy))
+        spp_info <- try(FishLife::Plot_taxa(FishLife::Search_species(Genus=genus, Species=species)$match_taxonomy,mfrow=c(2,2)))
         if(inherits(spp_info, "try-error")){
            # Record blanks
         }else{
@@ -212,7 +212,7 @@ fishlife.M <- function(species){
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
-   User_M<-input$User_M
+   #User_M<-input$User_M
    
    M_vals_all<-c(Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M)
    M_methods<-c("Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI")
@@ -238,7 +238,7 @@ fishlife.M <- function(species){
  output$Mcomposite<- renderPlot({    
    if(all(is.na(M_vals_all()))){return(NULL)}
    else{
-   M.wts<-c(input$FishLife,input$Then_Amax_1,input$Then_Amax_2,input$Then_Amax_3,input$Hamel_Amax,input$AnC,input$Then_VBGF,input$Jensen_VBGF_1,input$Jensen_VBGF_2,input$Pauly_lt,input$Gislason,input$Chen_Wat,input$Roff,input$Jensen_Amat,input$Ri_Ef_Amat,input$Pauly_wt,input$PnW,input$Lorenzen,input$Gonosoma,input$UserM)
+   M.wts<-c(input$FishLife,input$Then_Amax_1,input$Then_Amax_2,input$Then_Amax_3,input$Hamel_Amax,input$AnC,input$Then_VBGF,input$Jensen_VBGF_1,input$Jensen_VBGF_2,input$Pauly_lt,input$Gislason,input$Chen_Wat,input$Roff,input$Jensen_Amat,input$Ri_Ef_Amat,input$Pauly_wt,input$PnW,input$Lorenzen,input$Gonosoma,input$UserM_wt)
    #remove NAs
    if(any(is.na(M_vals_all()))){
      NA.ind<-attributes(na.omit(M_vals_all()))$na.action
@@ -255,7 +255,7 @@ fishlife.M <- function(species){
    M.wts.sub.stand<-M.wts.sub.n0/sum(M.wts.sub.n0)
    M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,from=0,cut=0)
    #Approximate the denisty function
-   f<- approxfun(M.densum$x, M.densum$y, yleft=0, yright=0)
+   #f<- approxfun(M.densum$x, M.densum$y, yleft=0, yright=0)
    #Standardize densities
    pdf_counts<-round(1000000*(M.densum$y/sum(M.densum$y)))
    #Expand densities to samples
@@ -283,5 +283,5 @@ fishlife.M <- function(species){
     }
    })
   }
-)
+#)
 
