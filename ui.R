@@ -10,15 +10,20 @@ library(shiny)
     h5(p(em("a coefficient of variation (CV) value and error distribution type."))),
     br(),
     h4(p("References for each method can be found",tags$a(href="javascript:window.open('References_M.html', '_blank','width=600,height=400')", "here"))),
-    h4(p("Input requirements for each method can be found",tags$a(href="javascript:window.open('Method_inputs.html', '_blank','width=600,height=400')", "here"))),
     
-    headerPanel("Input parameters"),
     sidebarLayout(
-        sidebarPanel
-       (
+    sidebarPanel(
+    conditionalPanel(
+      condition="input.conditionedPanels==1",
+        h3("Parameters inputs"),
+        h5(p(em("Provide a value for the CV and choose an error type to add additional uncertainty to the point estimates. The CV will be applied to all methods."))),
+        h5(p(em("CV = 0 means only point estimates will be reported"))), 
         fluidRow(column(width=6,numericInput("M_CV", "CV in M", value=0,min=0, max=10, step=0.1)),
-            column(width=6,selectInput("M_CV_type","Error type",c("normal","lognormal")))),    
-         textInput("Genspp","Scientific name",value=""),
+            column(width=6,selectInput("M_CV_type","Error type",c("lognormal","normal")))),    
+        h5(p(em("Provide inputs below. You do not need values for all inputs; natural mortality will only be estimated for a given methods when all input parameters are met."))),
+        h5(p(em("Scientific name calls the FishLife M estimator"))),
+        h5(p(em("Input requirements for other methods can be found",tags$a(href="javascript:window.open('Method_inputs.html', '_blank','width=600,height=400')", "here")))),
+        textInput("Genspp","Scientific name",value=""),
         fluidRow(column(width=6,numericInput("Amax", "Longevity (yrs):", value=NA,min=0.1, max=300, step=0.1)),
             column(width=6,numericInput("Age_in","Age-specific (yrs):", value=NA,min=0.1, max=300, step=0.01))),    
         fluidRow(column(width=6,numericInput("Linf","VBGF Linf (in cm):", value=NA,min=1, max=10000, step=0.01)),
@@ -32,18 +37,12 @@ library(shiny)
         fluidRow(column(6,numericInput("Wdry","Total dry weight (in g):" ,value=NA,min = 0.01, max = 1000000,step=0.01)),
             column(width=6,numericInput("Wwet","Total wet weight (in g):" ,value=NA,min = 0.01, max = 1000000,step=0.01))),
         fluidRow(column(width=6,numericInput("GSI","Gonadosomatic index (GSI):",value=NA,min = 0, max = 1,step=0.001)),
-             column(width=6,numericInput("User_M","User M input:",value=NA,min = 0, max = 10,step=0.001))),
-         
-       br(),
-       br(),
-       br(),
-       br(),       
-       br(),
-       br(),
-       br(),
-       br(),
+             column(width=6,numericInput("User_M","User M input:",value=NA,min = 0, max = 10,step=0.001))), 
+       ),
        
        
+       conditionalPanel(
+       condition="input.conditionedPanels==2",
        h3("Composite M: method weighting"),
        h5(p(em("Allows for weighting of the contribution of each method in the composite M distribution"))),
        h5("Values range from 0 to 1. A value of 0 removes the contribution; a value of 1 is full weighting."),
@@ -93,37 +92,34 @@ library(shiny)
          fluidRow(
            column(6,numericInput("UserM_wt","User M",value=1,min = 0, max = 1,step=0.001)))
         )
-       ),
+       )
+       ), #end sidebar
          mainPanel(
+          tabsetPanel(
+          tabPanel("M by method",
           h4("Natural mortality (M) estimates by method"),
+          h5("Legend color indicate inputs used by each method"),
           plotOutput("Mplot"),
-          h4("Natural mortality (M) values"),
+          h4("Natural mortality (M) point estimates"),
           fluidRow(
             column(4,tableOutput("Mtable")),
             column(4,tableOutput("Mtable2")),
             column(4,tableOutput("MtableUser")),
             downloadButton('downloadMs', 'Download M values'),
-            downloadButton('downloadCW_M_a', 'Download Chen-Wat. age-specific M values'),
-            br(),
-            br(),
-            br(),
-            br(),       
-            br(),
-            br(),
-            br(),
-            br(),
-            br(),
-            br(),
-            br(),
-            br(),
-            br(),
+            downloadButton('downloadCW_M_a', 'Download age-specific M values')
+            ),
+            value=1
+          ),
+          tabPanel("Composite M",
             h4("Composite natural mortality"),
             h5(p(em("Blue vertical line indicates median value"))),
             plotOutput("Mcomposite"),
             downloadButton('downloadMcompositedensityplot', 'Download composite M density plot'),
-            downloadButton('downloadMcompositedist', 'Download composite M for resampling')
+            downloadButton('downloadMcompositedist', 'Download composite M for resampling'),
+            value=2
+          ), id="conditionedPanels"
           )
-        )
+      )
     ) 
 )
 #)

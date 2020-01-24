@@ -205,7 +205,7 @@ require(ggplot2)
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M)
    M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
-   colnames(M_table)<-c("Methods","M")
+   colnames(M_table)<-c("Method","M")
    #rownames(M_table)<-M_methods
    M_table
   })
@@ -235,7 +235,7 @@ require(ggplot2)
    #rownames(M_table)<-M_methods
    #colnames(M_table)<-"M"
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
-   colnames(M_table)<-c("Methods","M")
+   colnames(M_table)<-c("Method","M")
    M_table
  })
 
@@ -244,7 +244,7 @@ require(ggplot2)
    M_methods<-paste0("User input_",c(1:length(User_M)))
    M_table<-data.frame(User_M)
    M_table_User<-data.frame(cbind(M_methods,signif(User_M,3)))
-   colnames(M_table_User)<-c("Methods","M")
+   colnames(M_table_User)<-c("Method","M")
    M_table_User
  })
 
