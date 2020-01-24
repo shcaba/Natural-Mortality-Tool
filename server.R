@@ -63,16 +63,23 @@ require(ggplot2)
       return(M.out)
     }
 
-fishlife.M <- function(species){
-  # Setup container
-  if(species!="")
-  {
-     spp <- sort(unique(species))
-     fl <- data.frame(species=spp, linf_cm=NA, k=NA, winf_g=NA, tmax_yr=NA, tmat_yr=NA,
+    Gislason_M_a<-function(Amax,Linf,k,t0)
+    {
+		Lts<-Linf*(1-exp(-k*(c(1:Amax)-t0)))
+		Gis_Ms_a<-mapply(function(x) M.empirical(Linf=Linf,Kl=k,Bl=Lts[x],method=9)[1],x=1:length(Lts),SIMPLIFY=TRUE)
+		return(Gis_Ms_a)
+    }
+
+	fishlife.M <- function(species){
+ 	 # Setup container
+ 	 if(species!="")
+ 	 {
+    	 spp <- sort(unique(species))
+     	fl <- data.frame(species=spp, linf_cm=NA, k=NA, winf_g=NA, tmax_yr=NA, tmat_yr=NA,
                       m=NA, lmat_cm=NA, temp_c=NA, stringsAsFactors=F)
      
-     # Loop through species
-     for(i in 1:nrow(fl)){
+   	 # Loop through species
+     	for(i in 1:nrow(fl)){
         
         # Get spp info
         sciname <- fl$species[i]
@@ -89,31 +96,39 @@ fishlife.M <- function(species){
            # Values are in log-scale except temperature
            spp_lh_vals_log <- spp_info[[1]]$Mean_pred
            spp_lh_vals <- c(exp(spp_lh_vals_log[1:7]), spp_lh_vals_log[8],spp_lh_vals_log[9:20])
-        }
-     }
+       	 }
+     	}
      
      # Return
-     return(as.numeric(spp_lh_vals)[6])
-  }
-   else{return(NA)}     
-}
+     	return(as.numeric(spp_lh_vals)[6])
+  	}
+  	 else{return(NA)}     
+	}
     
 ####### END FUNCTIONS ########
     
     
  M_vals_all<- reactive({
-   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-Gislason_M_ages<-NA
+   
    if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
    Then_M_Amax<-Then_M(input$Amax)
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
-   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in))))
+   	{
+   		Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]
+   	}
+   if(!(anyNA(c(input$Amax,input$Linf,input$k_vbgf,input$Lt_in,input$t0))))
+   	{
+   		Gislason_M_ages<-Gislason_M_a(input$Amax,input$Linf,input$k_vbgf,input$t0)
+   	}
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Age_in,input$k_vbgf,input$t0)
    CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0,out.type = 0)
    maxage<-input$Amax
-   if(!is.na(maxage)){CnW_M_a_VBGF_table<-cbind(c(1:maxage),CnW_M_a_VBGF)
-   colnames(CnW_M_a_VBGF_table)<-c("Age","M")}
+   if(!is.na(maxage)){CnW_M_a_VBGF_table<-cbind(c(1:maxage),CnW_M_a_VBGF,Gislason_M_ages)
+   colnames(CnW_M_a_VBGF_table)<-c("Age","CnW_M","Gislason_M")}
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
@@ -176,7 +191,7 @@ fishlife.M <- function(species){
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
-   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
    CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
@@ -202,7 +217,7 @@ fishlife.M <- function(species){
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
-   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Bl)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Bl,method=9)[1]}
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
    CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
