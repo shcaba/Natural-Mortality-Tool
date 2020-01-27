@@ -137,24 +137,24 @@ require(ggplot2)
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
-   User_M<-input$User_M
+   User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
+   if(length(User_M)==0)User_M<-NA
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
    output$downloadCW_M_a <- downloadHandler(
-     filename = function() {paste0("CW_M_a_values", '.csv') },
+     filename = function() {paste0("Age_specific_M_values", '.csv') },
      content = function(file) {write.csv(CnW_M_a_VBGF_table, file=file)}
    )  
    M_vals_all
    })
      
-#   CW_M_a<- renderText({
-#     CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,iput$Amat,input$k,input$t0)
-#     print(CnW_M_VBGF)
-#   })   
         
    output$Mplot <- renderPlot({
    M_vals_all<-M_vals_all()
-   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI","User input")
-   M_types<-c("Meta-analysis",rep("Amax",4),rep("Amax:VBGF",2),rep("VBGF",4),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",3),rep("GSI",1),"User input")
+   User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
+   M_users<-"User input"
+   if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
+   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI",M_users)
+   M_types<-c("Meta-analysis",rep("Amax",4),rep("Amax:VBGF",2),rep("VBGF",4),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",3),rep("GSI",1),rep("User input",length(M_users)))
    M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
    colnames(M_vals_gg)<-c("M","Method","Input")
    M_vals_gg$Method<-factor(M_vals_gg$Method,levels=unique(M_vals_gg$Method))
@@ -240,7 +240,9 @@ require(ggplot2)
  })
 
  output$MtableUser <- renderTable({
-   User_M<-input$User_M
+   User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
+   if(length(User_M)==0)User_M<-NA
+   print(User_M)
    M_methods<-paste0("User input_",c(1:length(User_M)))
    M_table<-data.frame(User_M)
    M_table_User<-data.frame(cbind(M_methods,signif(User_M,3)))
