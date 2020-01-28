@@ -1,6 +1,7 @@
 require(shiny)
 require(fishmethods)
 require(ggplot2)
+library(truncnorm)
 
 #shinyServer(
   function(input, output) 
@@ -164,10 +165,32 @@ require(ggplot2)
    if(!(all(is.na(M_vals_all)))){ymax<-ceiling((max(M_vals_all,na.rm=TRUE)*1.1*10))/10}
    
    #ggplot(M_vals_gg,aes(Method,as.numeric(Mvals),color=Mtype))+geom_point(size=2)+ylab("M")+xlab("Method")+theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))
-   print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
+	  if(input$M_CV==0)
+	  {
+	  print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
            geom_point(size=4)+ylab("M")+xlab("Method")+
-           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5)))
-       
+	  	   scale_y_continuous(limits = c(0, NA))+
+	  	   theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5)))
+	  }
+	 
+      
+	  if(input$M_CV>0 & input$M_CV_type=="lognormal")
+	  {
+      print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
+           geom_point(size=4)+ylab("M")+xlab("Method")+
+           scale_y_continuous(limits = c(0, NA))+
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
+   		   geom_pointrange(aes(ymin=qlnorm(0.025,log(as.numeric(as.character(M))),input$M_CV),ymax=qlnorm(0.975,log(as.numeric(as.character(M))),input$M_CV))))
+      	   
+      }
+
+	if(input$M_CV>0 & input$M_CV_type=="normal")
+	  {
+      print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
+           geom_point(size=4)+ylab("M")+xlab("Method")+
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
+   		   geom_pointrange(aes(ymin=qtruncnorm(0.025,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV),ymax=qtruncnorm(0.975,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV))))
+      }
    #par(mar=c(8,4,2,6),xpd =TRUE)
    #plot(M_vals_all, col = "black",bg=c("blue","blue","blue","blue","green","green","green","green","yellow","yellow","orange","red","red","red","black","black","black","purple","brown"),xlab=" ",ylab="Natural mortality",ylim=c(0,ymax),pch=22,cex=1.5,axes=F)
    #box()
@@ -255,7 +278,9 @@ require(ggplot2)
  output$Mcomposite<- renderPlot({    
    if(all(is.na(M_vals_all()))){return(NULL)}
    else{
-   M.wts<-c(input$FishLife,input$Then_Amax_1,input$Then_Amax_2,input$Then_Amax_3,input$Hamel_Amax,input$AnC,input$Then_VBGF,input$Jensen_VBGF_1,input$Jensen_VBGF_2,input$Pauly_lt,input$Gislason,input$Chen_Wat,input$Roff,input$Jensen_Amat,input$Ri_Ef_Amat,input$Pauly_wt,input$PnW,input$Lorenzen,input$Gonosoma,input$UserM_wt)
+   User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
+   if(length(User_M)==0)User_M<-NA
+   M.wts<-c(input$FishLife,input$Then_Amax_1,input$Then_Amax_2,input$Then_Amax_3,input$Hamel_Amax,input$AnC,input$Then_VBGF,input$Jensen_VBGF_1,input$Jensen_VBGF_2,input$Pauly_lt,input$Gislason,input$Chen_Wat,input$Roff,input$Jensen_Amat,input$Ri_Ef_Amat,input$Pauly_wt,input$PnW,input$Lorenzen,input$Gonosoma,rep(input$UserM_wt,length(User_M)))
    #remove NAs
    if(any(is.na(M_vals_all()))){
      NA.ind<-attributes(na.omit(M_vals_all()))$na.action
@@ -270,7 +295,7 @@ require(ggplot2)
    M.sub.n0<-M.sub[M.wts.sub>0]
    M.wts.sub.n0<-M.wts.sub[M.wts.sub>0]
    M.wts.sub.stand<-M.wts.sub.n0/sum(M.wts.sub.n0)
-   M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,from=0,cut=0)
+   M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,cut=0)
    #Approximate the denisty function
    #f<- approxfun(M.densum$x, M.densum$y, yleft=0, yright=0)
    #Standardize densities
@@ -285,7 +310,7 @@ require(ggplot2)
      geom_line(col="black")+
      labs(x="Natural Mortality",y="Density")+ 
      geom_area(fill="gray")+ 
-     #scale_x_continuous(limits=c(0,quantile(M.densum$x,0.99)))+
+     #scale_x_continuous(limits=c(0,quantile(M.densum$x,0.99999)))+
      geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
    print(Mcomposite.densityplot)
    output$downloadMcompositedensityplot <- downloadHandler(
