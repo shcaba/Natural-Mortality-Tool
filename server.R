@@ -3,7 +3,9 @@ require(fishmethods)
 require(ggplot2)
 require(truncnorm)
 require(data.table)
- 
+require(RColorBrewer) 
+require(viridis)
+
 #shinyServer(
   function(input, output) 
   {    
@@ -323,9 +325,6 @@ require(data.table)
    					"Lorenzen",
    					"GSI",
    					M_users)
-   print(input$Chen_Wat)
-   print(input$AnC)
-   print(M.wts)
    #remove NAs
    if(any(is.na(M_vals_all()))){
      NA.ind<-attributes(na.omit(M_vals_all()))$na.action
@@ -396,9 +395,14 @@ require(data.table)
   {
   	dat.plot<-M.dists()
   	dat.plot$rowval<-factor(dat.plot$rowval,levels=unique(dat.plot$rowval))
+  	
+  	#col.dists<-colorRampPalette(c("#236192","#1D252D","#658D1B")) #Sounders colors
+  	col.dists<-colorRampPalette(c("red", "yellow", "blue"))
+  	#col.dists<-colorRampPalette(c("red", "yellow", "blue"))
   	print(ggplot(dat.plot, aes(x = dist,stat(count))) +
  		geom_density(aes(fill = factor(rowval)),alpha = 0.5)+
-     	scale_fill_brewer(palette="Spectral",name="Method")+
+     	scale_fill_manual(values = col.dists(length(unique(dat.plot$rowval))),name="Method")+
+ 		#scale_fill_viridis(option="D",discrete=TRUE,name="Method")+
  		labs(x="Natural Mortality",y="Density"))
      	
   }
