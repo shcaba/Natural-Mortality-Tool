@@ -111,6 +111,10 @@ library(shiny)
             value=1
           ),
           tabPanel("Composite M",
+            h4("Method density and weights"),
+            h5("When no uncertainty is expressed, point estimates with weights are shown"),
+            h5("When uncertainty is expressed, the distribution of each method is given, with its frequency (determined by the weighting) plotted on the y-axis"),
+            plotOutput("Mdistplots"),
             h4("Composite natural mortality"),
             h5(p(em("Blue vertical line indicates median value"))),
             plotOutput("Mcomposite"),

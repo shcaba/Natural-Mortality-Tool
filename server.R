@@ -1,8 +1,9 @@
 require(shiny)
 require(fishmethods)
 require(ggplot2)
-library(truncnorm)
-
+require(truncnorm)
+require(data.table)
+ 
 #shinyServer(
   function(input, output) 
   {    
@@ -274,13 +275,57 @@ library(truncnorm)
  })
 
 
-#Plot Composite M
- output$Mcomposite<- renderPlot({    
-   if(all(is.na(M_vals_all()))){return(NULL)}
+
+ M.CV.method<- reactive({
+  if(all(is.na(M_vals_all()))){return(NULL)}
    else{
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
    if(length(User_M)==0)User_M<-NA
-   M.wts<-c(input$FishLife,input$Then_Amax_1,input$Then_Amax_2,input$Then_Amax_3,input$Hamel_Amax,input$AnC,input$Then_VBGF,input$Jensen_VBGF_1,input$Jensen_VBGF_2,input$Pauly_lt,input$Gislason,input$Chen_Wat,input$Roff,input$Jensen_Amat,input$Ri_Ef_Amat,input$Pauly_wt,input$PnW,input$Lorenzen,input$Gonosoma,rep(input$UserM_wt,length(User_M)))
+   M_users<-"User input"
+   if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
+   M.wts<-c(input$FishLife,
+   			input$Then_Amax_1,
+   			input$Then_Amax_2,
+   			input$Then_Amax_3,
+   			input$Hamel_Amax,
+   			input$Chen_Wat,
+   			input$AnC,
+   			input$Then_VBGF,
+   			input$Jensen_VBGF_1,
+   			input$Jensen_VBGF_2,
+   			input$Gislason,
+   			input$Pauly_lt,
+   			input$Roff,
+   			input$Jensen_Amat,
+   			input$Ri_Ef_Amat,
+   			input$Pauly_wt,
+   			input$PnW,
+   			input$Lorenzen,
+   			input$Gonosoma,
+   			rep(input$UserM_wt,length(User_M)))
+   names(M.wts)<-c("FishLife",
+   					"Then_Amax 1",
+   					"Then_Amax 2",
+   					"Then_Amax 3",
+   					"Hamel_Amax",
+   					"Chen-Wat",
+   					"AnC",
+   					"Then_VBGF",
+   					"Jensen_VBGF 1",
+   					"Jensen_VBGF 2",
+   					"Gislason",
+   					"Pauly_lt",
+   					"Roff",
+   					"Jensen_Amat",
+   					"Ri_Ef_Amat",
+   					"Pauly_wt",
+   					"PnW",
+   					"Lorenzen",
+   					"GSI",
+   					M_users)
+   print(input$Chen_Wat)
+   print(input$AnC)
+   print(M.wts)
    #remove NAs
    if(any(is.na(M_vals_all()))){
      NA.ind<-attributes(na.omit(M_vals_all()))$na.action
@@ -295,24 +340,111 @@ library(truncnorm)
    M.sub.n0<-M.sub[M.wts.sub>0]
    M.wts.sub.n0<-M.wts.sub[M.wts.sub>0]
    M.wts.sub.stand<-M.wts.sub.n0/sum(M.wts.sub.n0)
-   M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,cut=0)
-   #Approximate the denisty function
-   #f<- approxfun(M.densum$x, M.densum$y, yleft=0, yright=0)
-   #Standardize densities
-   pdf_counts<-round(1000000*(M.densum$y/sum(M.densum$y)))
-   #Expand densities to samples
-   pdf.samples<-unlist(mapply(rep,M.densum$x,pdf_counts))
-   #Calculate the cdf
-   cdf.out<-ecdf(pdf.samples)
-   #Plot the density function
-   M.densum.plot<- data.frame(x = M.densum$x, y = M.densum$y)
-   Mcomposite.densityplot<- ggplot(data=M.densum.plot,aes(x,y,fill="blue"))+
-     geom_line(col="black")+
-     labs(x="Natural Mortality",y="Density")+ 
-     geom_area(fill="gray")+ 
-     #scale_x_continuous(limits=c(0,quantile(M.densum$x,0.99999)))+
-     geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
-   print(Mcomposite.densityplot)
+   samp.num<-1000000
+   samps<-samp.num*M.wts.sub.stand
+	
+	M.CV.method <- data.table(meanval = M.sub.n0,
+                       sdval = input$M_CV,
+                       rep = samps,
+                       wts=M.wts.sub.stand,
+                       method= names(M.wts.sub.stand))
+	M.CV.method
+	}
+	})
+
+ 	M.dists<- reactive({
+		if(input$M_CV_type=="lognormal")
+		{
+			M.dists <- rbindlist(lapply(1:dim(M.CV.method())[1], 
+                        function(x) data.table(rowval = M.CV.method()$method[x], 
+                                               dist = rlnorm(M.CV.method()[x, rep],
+                                               log(M.CV.method()[x, meanval]), 
+                                               M.CV.method()[x, sdval]))))
+		}
+		if(input$M_CV_type=="normal")
+		{
+			M.dists <- rbindlist(lapply(1:dim(M.CV.method())[1], 
+                        function(x) data.table(rowval = M.CV.method()$method[x], 
+                                               dist = rtruncnorm(M.CV.method()[x, rep],
+                                               a=0,
+                                               b=Inf, 
+                                               M.CV.method()[x, meanval], 
+                                               M.CV.method()[x, meanval*sdval]))))
+		}
+	M.dists
+ 	})
+
+#Plot Individual distributions
+ output$Mdistplots<- renderPlot({ 
+
+   if(input$M_CV==0)
+   {
+	 dist.dat<-M.CV.method()
+	 dist.dat$method<-factor(dist.dat$method,levels=dist.dat$method)
+	 print(ggplot(dist.dat, aes(x = method,y=meanval,size=wts)) +
+	 geom_point(color="blue")+
+	 geom_segment(aes(x=c(1:dim(dist.dat)[1]),xend=c(1:dim(dist.dat)[1]),yend=meanval,y=0),size=1)+
+	 geom_point(color="blue")+
+	 scale_size_area(name  ="Weighting")+
+	 scale_y_continuous(limits = c(0, NA))+
+	 theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
+	 labs(x="Method",y="Natural Mortality"))
+   }
+
+
+ if(input$M_CV>0)
+  {
+  	dat.plot<-M.dists()
+  	dat.plot$rowval<-factor(dat.plot$rowval,levels=unique(dat.plot$rowval))
+  	print(ggplot(dat.plot, aes(x = dist,stat(count))) +
+ 		geom_density(aes(fill = factor(rowval)),alpha = 0.5)+
+     	scale_fill_brewer(palette="Spectral",name="Method")+
+ 		labs(x="Natural Mortality",y="Density"))
+     	
+  }
+
+ 	})
+
+#Plot Composite M
+ output$Mcomposite<- renderPlot({    
+ 
+
+#    if(input$M_CV==0)
+#   {
+	pdf.Msamples<-M.dists()
+	cdf.out<-ecdf(pdf.Msamples$dist)
+  	Mcomposite.densityplot<-ggplot(data= pdf.Msamples,aes(dist))+
+     	geom_density(fill="gray",bw="SJ")+
+     	labs(x="Natural Mortality",y="Density")+ 
+     	geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
+ 	print(Mcomposite.densityplot)
+	
+  #  #Calculate density function of point estimates	
+  #  	M.densum<-density(M.sub.n0,weights=M.wts.sub.stand,cut=0)
+  #  #Approximate the denisty function
+  #  #f<- approxfun(M.densum$x, M.densum$y, yleft=0, yright=0)
+  #  #Standardize densities
+  #  	pdf_counts<-round(1000000*(M.densum$y/sum(M.densum$y)))
+  #  #Expand densities to samples
+  #  	pdf.samples<-unlist(mapply(rep,M.densum$x,pdf_counts))
+  #  #Calculate the cdf
+  #  	cdf.out<-ecdf(pdf.samples)
+  #  #Plot the density function
+  # 	M.densum.plot<- data.frame(x = M.densum$x, y = M.densum$y)
+ 	# Mcomposite.densityplot<- ggplot(data=M.densum.plot,aes(x,y,fill="blue"))+
+  #    	geom_line(col="black")+
+  #    	labs(x="Natural Mortality",y="Density")+ 
+  #    	geom_area(fill="gray")+ 
+  #    #scale_x_continuous(limits=c(0,quantile(M.densum$x,0.99999)))+
+	 #   geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
+	 #   print(Mcomposite.densityplot)
+#   }
+   
+#if(input$M_CV>0)
+#   {
+#   	tot.samples<-1000000
+
+#   }
    output$downloadMcompositedensityplot <- downloadHandler(
    filename = function() { paste0('Mcomposite_densityplot',Sys.time(), '.png')},
    content = function(file) {
@@ -321,8 +453,8 @@ library(truncnorm)
      dev.off()},contentType = 'image/png') 
    output$downloadMcompositedist <- downloadHandler(
      filename = function() {  paste0("Mcomposite_samples",Sys.time(),".DMP") },
-     content = function(file) {save(pdf.samples,file=file)}) 
-    }
+     content = function(file) {save(pdf.Msamples,file=file)}) 
+    
    })
   }
 #)
