@@ -342,11 +342,12 @@ require(viridis)
    samp.num<-1000000
    samps<-samp.num*M.wts.sub.stand
 	
-	M.CV.method <- data.table(meanval = M.sub.n0,
-                       sdval = input$M_CV,
-                       rep = samps,
-                       wts=M.wts.sub.stand,
-                       method= names(M.wts.sub.stand))
+	M.CV.method <- data.table(meanM = M.sub.n0,
+                       CVval = input$M_CV,
+                       Samples = samps,
+                       Original.wts = M.wts.sub.n0,
+                       Stand.Weights=M.wts.sub.stand,
+                       Method= names(M.wts.sub.stand))
 	M.CV.method
 	}
 	})
@@ -355,20 +356,20 @@ require(viridis)
 		if(input$M_CV_type=="lognormal")
 		{
 			M.dists <- rbindlist(lapply(1:dim(M.CV.method())[1], 
-                        function(x) data.table(rowval = M.CV.method()$method[x], 
-                                               dist = rlnorm(M.CV.method()[x, rep],
-                                               log(M.CV.method()[x, meanval]), 
-                                               M.CV.method()[x, sdval]))))
+                        function(x) data.table(Method = M.CV.method()$Method[x], 
+                                               Mval = rlnorm(M.CV.method()[x, Samples],
+                                               log(M.CV.method()[x, meanM]), 
+                                               M.CV.method()[x, CVval]))))
 		}
 		if(input$M_CV_type=="normal")
 		{
 			M.dists <- rbindlist(lapply(1:dim(M.CV.method())[1], 
-                        function(x) data.table(rowval = M.CV.method()$method[x], 
-                                               dist = rtruncnorm(M.CV.method()[x, rep],
+                        function(x) data.table(Method = M.CV.method()$Method[x], 
+                                               Mval = rtruncnorm(M.CV.method()[x, Samples],
                                                a=0,
                                                b=Inf, 
-                                               M.CV.method()[x, meanval], 
-                                               M.CV.method()[x, meanval*sdval]))))
+                                               M.CV.method()[x, meanM], 
+                                               M.CV.method()[x, meanM*CVval]))))
 		}
 	M.dists
  	})
@@ -376,48 +377,59 @@ require(viridis)
 #Plot Individual distributions
  output$Mdistplots<- renderPlot({ 
 
+   dist.dat<-M.CV.method()
    if(input$M_CV==0)
    {
-	 dist.dat<-M.CV.method()
-	 dist.dat$method<-factor(dist.dat$method,levels=dist.dat$method)
-	 print(ggplot(dist.dat, aes(x = method,y=meanval,size=wts)) +
+	 dist.dat$Method<-factor(dist.dat$Method,levels=dist.dat$Method)
+	 Mdist_plots<-ggplot(dist.dat, aes(x = Method,y=meanM,size=Stand.Weights)) +
 	 geom_point(color="blue")+
-	 geom_segment(aes(x=c(1:dim(dist.dat)[1]),xend=c(1:dim(dist.dat)[1]),yend=meanval,y=0),size=1)+
+	 geom_segment(aes(x=c(1:dim(dist.dat)[1]),xend=c(1:dim(dist.dat)[1]),yend=meanM,y=0),size=1)+
 	 geom_point(color="blue")+
 	 scale_size_area(name  ="Weighting")+
 	 scale_y_continuous(limits = c(0, NA))+
 	 theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
-	 labs(x="Method",y="Natural Mortality"))
+	 labs(x="Method",y="Natural Mortality")
+   print(Mdist_plots)
    }
 
 
  if(input$M_CV>0)
   {
   	dat.plot<-M.dists()
-  	dat.plot$rowval<-factor(dat.plot$rowval,levels=unique(dat.plot$rowval))
+  	dat.plot$Method<-factor(dat.plot$Method,levels=unique(dat.plot$Method))
   	
   	#col.dists<-colorRampPalette(c("#236192","#1D252D","#658D1B")) #Sounders colors
   	col.dists<-colorRampPalette(c("red", "yellow", "blue"))
   	#col.dists<-colorRampPalette(c("red", "yellow", "blue"))
-  	print(ggplot(dat.plot, aes(x = dist,stat(count))) +
- 		geom_density(aes(fill = factor(rowval)),alpha = 0.5)+
-     	scale_fill_manual(values = col.dists(length(unique(dat.plot$rowval))),name="Method")+
+  	Mdist_plots<-ggplot(dat.plot, aes(x = Mval,stat(count))) +
+ 		geom_density(aes(fill = factor(Method)),alpha = 0.5)+
+     	scale_fill_manual(values = col.dists(length(unique(dat.plot$Method))),name="Method")+
  		#scale_fill_viridis(option="D",discrete=TRUE,name="Method")+
- 		labs(x="Natural Mortality",y="Density"))
+ 		labs(x="Natural Mortality",y="Density")
+    print(Mdist_plots)
      	
   }
+   Mdist_values<-dist.dat
+   output$downloadMdensityplots <- downloadHandler(
+   filename = function() { paste0('Mdensityplots',Sys.time(), '.png')},
+   content = function(file) {
+     png(file, type='cairo',width=800,height=720)
+     print(Mdist_plots)
+     dev.off()},contentType = 'image/png') 
+   output$downloadMdistvals <- downloadHandler(
+     filename = function() {  paste0("Mdist_values",Sys.time(),".DMP") },
+     content = function(file) {save(Mdist_values,file=file)}) 
 
  	})
 
 #Plot Composite M
  output$Mcomposite<- renderPlot({    
  
-
 #    if(input$M_CV==0)
 #   {
-	pdf.Msamples<-M.dists()
-	cdf.out<-ecdf(pdf.Msamples$dist)
-  	Mcomposite.densityplot<-ggplot(data= pdf.Msamples,aes(dist))+
+	Msamples<-M.dists()
+	cdf.out<-ecdf(Msamples$Mval)
+  	Mcomposite.densityplot<-ggplot(data= Msamples,aes(Mval))+
      	geom_density(fill="gray",bw="SJ")+
      	labs(x="Natural Mortality",y="Density")+ 
      	geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
@@ -457,7 +469,7 @@ require(viridis)
      dev.off()},contentType = 'image/png') 
    output$downloadMcompositedist <- downloadHandler(
      filename = function() {  paste0("Mcomposite_samples",Sys.time(),".DMP") },
-     content = function(file) {save(pdf.Msamples,file=file)}) 
+     content = function(file) {save(Msamples,file=file)}) 
     
    })
   }

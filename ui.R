@@ -115,6 +115,8 @@ library(shiny)
             h5("When no uncertainty is expressed, point estimates with weights are shown"),
             h5("When uncertainty is expressed, the distribution of each method is given, with its frequency (determined by the weighting) plotted on the y-axis"),
             plotOutput("Mdistplots"),
+            downloadButton('downloadMdensityplots', 'Download M density plot'),
+            downloadButton('downloadMdistvals', 'Download M density inputs'),
             h4("Composite natural mortality"),
             h5(p(em("Blue vertical line indicates median value"))),
             plotOutput("Mcomposite"),
