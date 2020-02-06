@@ -5,6 +5,7 @@ require(truncnorm)
 require(data.table)
 require(RColorBrewer) 
 require(viridis)
+require(reshape2)
 
 #shinyServer(
   function(input, output) 
@@ -111,47 +112,72 @@ require(viridis)
     
 ####### END FUNCTIONS ########
     
-    
+  #Calculate age-specific M values
+   M_vals_ages<- reactive({
+    CnW_M_a_VBGF<-Gislason_M_ages<-NA
+    M_vals_ages<-data.table(Age=NA,CnW_M=CnW_M_a_VBGF,Gislason_M=Gislason_M_ages)
+    #Calculate Gislason
+    if(!(anyNA(c(input$Amax,input$Linf,input$k_vbgf,input$t0))))
+    {Gislason_M_ages<-Gislason_M_a(input$Amax,input$Linf,input$k_vbgf,input$t0)}
+    #Calculate Chen & Watanabe
+    CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0,out.type = 0)
+    #Put table together
+    if(!is.na(input$Amax)){M_vals_ages<-data.table(Age=c(1:input$Amax),CnW_M=CnW_M_a_VBGF,Gislason_M=Gislason_M_ages)}
+    #Create download object for the age-specific values csv file
+    output$downloadCW_M_a <- downloadHandler(
+     filename = function() {paste0("Age_specific_M_values", '.csv') },
+     content = function(file) {write.csv(M_vals_ages, file=file)})  
+   M_vals_ages
+   })        
+ 
+ #Calcualte individual estimates of M   
  M_vals_all<- reactive({
-   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-Gislason_M_ages<-NA
-   
+   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
+   #Fishlife
    if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
+   #Longevity
    Then_M_Amax<-Then_M(input$Amax)
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
+   CnW_M_VBGF<-Chen_N_Wat_M(input$Age_in,input$k_vbgf,input$t0)
+   #VBGF
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in))))
-   	{
-   		Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]
-   	}
-   if(!(anyNA(c(input$Amax,input$Linf,input$k_vbgf,input$Lt_in,input$t0))))
-   	{
-   		Gislason_M_ages<-Gislason_M_a(input$Amax,input$Linf,input$k_vbgf,input$t0)
-   	}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Age_in,input$k_vbgf,input$t0)
-   CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0,out.type = 0)
-   maxage<-input$Amax
-   if(!is.na(maxage)){CnW_M_a_VBGF_table<-cbind(c(1:maxage),CnW_M_a_VBGF,Gislason_M_ages)
-   colnames(CnW_M_a_VBGF_table)<-c("Age","CnW_M","Gislason_M")}
+   	{Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
+   #Maturity
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
+   #Size-based
    if(!(anyNA(c(input$Wdry)))){PnW_M<-M.empirical(Wdry=input$Wdry,method=7)[1]}
    if(!(anyNA(c(input$Wwet)))){Lorenzen96_M<-M.empirical(Wwet=input$Wwet,method=8)[1]}
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
-   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
+   #GSI
+   print(if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]})
+   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-1.79*input$GSI}
+   #User inputs
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
    if(length(User_M)==0)User_M<-NA
+   M_users<-"User input"
+   if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
+   #Concatenate all M values
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
-   output$downloadCW_M_a <- downloadHandler(
-     filename = function() {paste0("Age_specific_M_values", '.csv') },
-     content = function(file) {write.csv(CnW_M_a_VBGF_table, file=file)}
-   )  
+   M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI",M_users)
+   M_methods_vals_all<-data.table(Method=M_methods, M=M_vals_all)
+   #Create object with all input parameter values
+   M_parms_all<-c(input$M_CV,input$M_CV_type,input$Amax,input$Linf,input$k_vbgf,input$t0,input$Age_in,input$Lt_in,input$Amat,input$Temp,input$Winf,input$kw,input$Wdry,input$Wwet,input$GSI,User_M)
+   M_parms_names<-c("CV","Error type","Max age","Linf","k","t0","Age","Length","Age mat","Temp","Winf","kW","Dry wt","Wet wt","GSI",M_users)
+   M_parms_names_all<-data.table(Paramter=M_parms_names,Input=M_parms_all)
+   M.out.parms.vals.ages<-list(Paramters= M_parms_names_all,M_estimates=M_methods_vals_all,Age_specific_values=M_vals_ages())
+   #Create downlaod for M values, parameters and age-specific values
+   output$downloadMandPs <- downloadHandler(
+     filename = function() {  paste0("M_parms_values_byage_out",Sys.time(),".DMP") },
+     content = function(file) {save(M.out.parms.vals.ages,file=file)}) 
    M_vals_all
    })
-     
-        
+
+
    output$Mplot <- renderPlot({
    M_vals_all<-M_vals_all()
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
@@ -170,43 +196,61 @@ require(viridis)
    #ggplot(M_vals_gg,aes(Method,as.numeric(Mvals),color=Mtype))+geom_point(size=2)+ylab("M")+xlab("Method")+theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))
 	  if(input$M_CV==0)
 	  {
-	  print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
+	  Mplots<-ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
            geom_point(size=4)+ylab("M")+xlab("Method")+
 	  	   scale_y_continuous(limits = c(0, NA))+
-	  	   theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5)))
+	  	   theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))
 	  }
 	 
       
 	  if(input$M_CV>0 & input$M_CV_type=="lognormal")
 	  {
-      print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
+      Mplots<-ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
            geom_point(size=4)+ylab("M")+xlab("Method")+
            scale_y_continuous(limits = c(0, NA))+
            theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
-   		   geom_pointrange(aes(ymin=qlnorm(0.025,log(as.numeric(as.character(M))),input$M_CV),ymax=qlnorm(0.975,log(as.numeric(as.character(M))),input$M_CV))))
+   		   geom_pointrange(aes(ymin=qlnorm(0.025,log(as.numeric(as.character(M))),input$M_CV),ymax=qlnorm(0.975,log(as.numeric(as.character(M))),input$M_CV)))
       	   
       }
 
 	if(input$M_CV>0 & input$M_CV_type=="normal")
 	  {
-      print(ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
+      Mplots<-ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
            geom_point(size=4)+ylab("M")+xlab("Method")+
            theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
-   		   geom_pointrange(aes(ymin=qtruncnorm(0.025,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV),ymax=qtruncnorm(0.975,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV))))
+   		     geom_pointrange(aes(ymin=qtruncnorm(0.025,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV),ymax=qtruncnorm(0.975,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV)))
       }
-   #par(mar=c(8,4,2,6),xpd =TRUE)
-   #plot(M_vals_all, col = "black",bg=c("blue","blue","blue","blue","green","green","green","green","yellow","yellow","orange","red","red","red","black","black","black","purple","brown"),xlab=" ",ylab="Natural mortality",ylim=c(0,ymax),pch=22,cex=1.5,axes=F)
-   #box()
-   #axis(1,at=1:length(M_vals_all),labels=M_methods,las=3)
-   #axis(2)
-   #legend(x="topright",legend=c("Amax","VBGF","VBGF:Temp","VBGF;Amat","Amat","Weight","GSI","User input"),pch=22,col="black",pt.bg=c("blue","green","yellow","orange","red","black","purple","brown"),bty="n",horiz=FALSE,cex=1,inset=c(-0.125,0))
+      print(Mplots)
    M_table<-data.frame(cbind(M_methods,M_vals_all))
    colnames(M_table)<-c("Method","M")
   # if(all(is.na(M_vals()))){return(NULL)}
+   output$downloadMplots <- downloadHandler(
+   filename = function() { paste0('Mplots',Sys.time(), '.png')},
+   content = function(file) {
+     png(file, type='cairo',width=800,height=720)
+     print(Mplots)
+     dev.off()},contentType = 'image/png') 
    output$downloadMs <- downloadHandler(
     filename = function() {paste0("M_values", '.csv') },
     content = function(file) {write.csv(M_table, file=file)}
   )
+ })
+
+ output$Mplot_ages <- renderPlot({
+    
+    M_vals_ages_melt<-data.table(melt(M_vals_ages(),id.vars=1,variable.name="Method",value.name="M"))
+    Mplot_ages<-ggplot(M_vals_ages_melt,aes(Age,M,color=Method))+
+    geom_point(size=4)+
+    #scale_y_continuous(limits = c(0, NA))+
+    labs(x="Age",y="Natural mortality")
+    print(Mplot_ages)
+     output$downloadMplot_ages <- downloadHandler(
+    filename = function() { paste0('Mplot_ages',Sys.time(), '.png')},
+    content = function(file) {
+     png(file, type='cairo',width=800,height=720)
+     print(Mplot_ages)
+     dev.off()},contentType = 'image/png') 
+  
  })
 
 # Show the first "n" observations
@@ -226,7 +270,7 @@ require(viridis)
    if(!(anyNA(c(input$Wwet)))){Lorenzen96_M<-M.empirical(Wwet=input$Wwet,method=8)[1]}
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
-   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
+   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-1.79*input$GSI}
   
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M)
    M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason")
@@ -252,7 +296,8 @@ require(viridis)
    if(!(anyNA(c(input$Wwet)))){Lorenzen96_M<-M.empirical(Wwet=input$Wwet,method=8)[1]}
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
-   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
+   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-1.79*input$GSI}
+   #if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
    #User_M<-input$User_M
    
    M_vals_all<-c(Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M)
@@ -268,15 +313,12 @@ require(viridis)
  output$MtableUser <- renderTable({
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
    if(length(User_M)==0)User_M<-NA
-   print(User_M)
    M_methods<-paste0("User input_",c(1:length(User_M)))
    M_table<-data.frame(User_M)
    M_table_User<-data.frame(cbind(M_methods,signif(User_M,3)))
    colnames(M_table_User)<-c("Method","M")
    M_table_User
  })
-
-
 
  M.CV.method<- reactive({
   if(all(is.na(M_vals_all()))){return(NULL)}
@@ -339,7 +381,7 @@ require(viridis)
    M.sub.n0<-M.sub[M.wts.sub>0]
    M.wts.sub.n0<-M.wts.sub[M.wts.sub>0]
    M.wts.sub.stand<-M.wts.sub.n0/sum(M.wts.sub.n0)
-   samp.num<-1000000
+   samp.num<-input$samp.num
    samps<-samp.num*M.wts.sub.stand
 	
 	M.CV.method <- data.table(meanM = M.sub.n0,
@@ -397,12 +439,12 @@ require(viridis)
   {
   	dat.plot<-M.dists()
   	dat.plot$Method<-factor(dat.plot$Method,levels=unique(dat.plot$Method))
-  	
   	#col.dists<-colorRampPalette(c("#236192","#1D252D","#658D1B")) #Sounders colors
   	col.dists<-colorRampPalette(c("red", "yellow", "blue"))
   	#col.dists<-colorRampPalette(c("red", "yellow", "blue"))
-  	Mdist_plots<-ggplot(dat.plot, aes(x = Mval,stat(count))) +
- 		geom_density(aes(fill = factor(Method)),alpha = 0.5)+
+  	Mdist_plots<-ggplot(dat.plot, aes(x = Mval,fill = factor(Method))) +
+ 		#geom_density(aes(fill = factor(Method),alpha = 0.5))+
+    geom_area(stat="bin",binwidth=0.005,alpha = 0.5)+
      	scale_fill_manual(values = col.dists(length(unique(dat.plot$Method))),name="Method")+
  		#scale_fill_viridis(option="D",discrete=TRUE,name="Method")+
  		labs(x="Natural Mortality",y="Density")
@@ -430,7 +472,7 @@ require(viridis)
 	Msamples<-M.dists()
 	cdf.out<-ecdf(Msamples$Mval)
   	Mcomposite.densityplot<-ggplot(data= Msamples,aes(Mval))+
-     	geom_density(fill="gray",bw="SJ")+
+     	geom_density(fill="gray",bw="SJ",adjust=input$ad.bw)+
      	labs(x="Natural Mortality",y="Density")+ 
      	geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
  	print(Mcomposite.densityplot)

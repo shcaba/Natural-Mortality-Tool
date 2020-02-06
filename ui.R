@@ -46,8 +46,8 @@ library(shiny)
        h3("Composite M: method weighting"),
        h5(p(em("Allows for weighting of the contribution of each method in the composite M distribution"))),
        h5("Values range from 0 to 1. A value of 0 removes the contribution; a value of 1 is full weighting."),
-       h5("Default values are based on redundancies of methods using similar information."),
-       h5("For instance,the four max. age methods are given a weight of 0.25, so all weighted together equal 1"),
+       h5("Default values are based on redundancies of methods using similar information. For instance,the four longevity-based methods are given a weight of 0.25, so all weighted together equal 1."),
+       h5("The prior sample number generates a prior based on the number of specified samples. This value also defines the binwidth in the density plot, thus lower sample numbers will give a more diffuse prior."),
        wellPanel(
           fluidRow(
             column(6,numericInput("FishLife","FishLife",value=1,min = 0, max = 1,step=0.001))
@@ -90,7 +90,12 @@ library(shiny)
             column(6,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001))
         ),
          fluidRow(
-           column(6,numericInput("UserM_wt","User M",value=1,min = 0, max = 1,step=0.001)))
+           column(6,numericInput("UserM_wt","User M",value=1,min = 0, max = 1,step=0.001))
+        ),
+        h5(p(em("M prior control parameters"))),
+        fluidRow(
+           column(6,numericInput("samp.num","Prior sample #",value=1000000,min = 0, max = 10000000,step=1)),
+           column(6,numericInput("ad.bw","Bandwidth multiplier",value=1,min = 0.0001, max = 100,step=0.01)))
         )
        )
        ), #end sidebar
@@ -105,9 +110,17 @@ library(shiny)
             column(4,tableOutput("Mtable")),
             column(4,tableOutput("Mtable2")),
             column(4,tableOutput("MtableUser")),
-            downloadButton('downloadMs', 'Download M values'),
-            downloadButton('downloadCW_M_a', 'Download age-specific M values')
             ),
+         downloadButton('downloadMplots', 'Download M values plot'),
+         downloadButton('downloadMs', 'Download M table csv file'),
+         downloadButton('downloadMandPs', 'Download parameter inputs and M values R object'),
+         br(),
+         br(),
+         br(),
+         h4("Natural mortality (M) by age"),
+         plotOutput("Mplot_ages"),
+         downloadButton('downloadMplot_ages', 'Download M at age plot'),
+         downloadButton('downloadCW_M_a', 'Download age-specific M values csv file'),
             value=1
           ),
           tabPanel("Composite M",
@@ -116,12 +129,15 @@ library(shiny)
             h5("When uncertainty is expressed, the distribution of each method is given, with its frequency (determined by the weighting) plotted on the y-axis"),
             plotOutput("Mdistplots"),
             downloadButton('downloadMdensityplots', 'Download M density plot'),
-            downloadButton('downloadMdistvals', 'Download M density inputs'),
+            downloadButton('downloadMdistvals', 'Download M density inputs as R object'),
+            br(),
+            br(),
+            br(),
             h4("Composite natural mortality"),
             h5(p(em("Blue vertical line indicates median value"))),
             plotOutput("Mcomposite"),
             downloadButton('downloadMcompositedensityplot', 'Download composite M density plot'),
-            downloadButton('downloadMcompositedist', 'Download composite M for resampling'),
+            downloadButton('downloadMcompositedist', 'Download composite M as R object'),
             value=2
           ), id="conditionedPanels"
           )
