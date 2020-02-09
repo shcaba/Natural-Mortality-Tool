@@ -260,23 +260,19 @@ require(reshape2)
 
 # Show the first "n" observations
  output$Mtable <- renderTable({
-   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
-   if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
+   fishlife.M.out<-AnC75_M<-Gislason_M<-NA
+   if(length(strsplit(input$Genspp, " ")[[1]])>1)
+   {
+    fishlife.M.out<-try(fishlife.M(input$Genspp))
+    if(inherits(fishlife.M.out,"try-error")==TRUE){fishlife.M.out<-NA}
+  }
    Then_M_Amax<-Then_M(input$Amax)
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
    CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
-   if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
-   Jensen_M_Amat<-Jensen_M_amat(input$Amat)
-   Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
-   if(!(anyNA(c(input$Wdry)))){PnW_M<-M.empirical(Wdry=input$Wdry,method=7)[1]}
-   if(!(anyNA(c(input$Wwet)))){Lorenzen96_M<-M.empirical(Wwet=input$Wwet,method=8)[1]}
-   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Temp)))){Pauly80lt_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,TC=input$Temp,method=1)[1]}
-   if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
-   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-1.79*input$GSI}
-  
+   
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M)
    M_methods<-c("FishLife","Then_Amax 1","Then_Amax 2","Then_Amax 3","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
@@ -286,14 +282,7 @@ require(reshape2)
   })
 # Show the first "n" observations
  output$Mtable2 <- renderTable({
-   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
-   if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
-   Then_M_Amax<-Then_M(input$Amax)
-   if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
-   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
-   Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
-   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
+   Jensen_M_Amat<-Pauly80lt_M<-Pauly80wt_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
