@@ -412,7 +412,6 @@ require(reshape2)
 
 #Plot Individual distributions
  output$Mdistplots<- renderPlot({ 
-
    dist.dat<-M.CV.method()
    if(input$M_CV==0)
    {
@@ -444,7 +443,6 @@ require(reshape2)
  		theme_minimal()+
     labs(x="Natural Mortality",y="Density")
     print(Mdist_plots)
-     	
   }
    Mdist_values<-dist.dat
    output$downloadMdensityplots <- downloadHandler(
@@ -456,8 +454,20 @@ require(reshape2)
    output$downloadMdistvals <- downloadHandler(
      filename = function() {  paste0("Mdist_values",Sys.time(),".DMP") },
      content = function(file) {save(Mdist_values,file=file)}) 
-
  	})
+
+#Calculate updated M prior given changes in bandwidth
+priorMupdate<-reactive({
+    Msamples<-M.dists()
+    Mvals<-Msamples$Mval
+    Mvals.update<-density(Mvals,adjust=input$ad.bw,from=0)  
+    priorMupdate <- approx(
+    cumsum(Mvals.update$y)/sum(Mvals.update$y),
+    Mvals.update$x,
+    runif(input$samp.num)
+    )$y
+    priorMupdate
+  })
 
 #Plot Composite M
  output$Mcomposite<- renderPlot({    
@@ -465,7 +475,8 @@ require(reshape2)
 #    if(input$M_CV==0)
 #   {
 	Msamples<-M.dists()
-	cdf.out<-ecdf(Msamples$Mval)
+	priorMupdate<-priorMupdate()
+  cdf.out<-ecdf(Msamples$Mval)
   	Mcomposite.densityplot<-ggplot(data= Msamples,aes(Mval))+
      	geom_density(fill="gray",bw="SJ",adjust=input$ad.bw)+
      	labs(x="Natural Mortality",y="Density")+ 
@@ -507,9 +518,12 @@ require(reshape2)
      dev.off()},contentType = 'image/png') 
    output$downloadMcompositedist <- downloadHandler(
      filename = function() {  paste0("Mcomposite_samples",Sys.time(),".DMP") },
-     content = function(file) {save(Msamples,file=file)}) 
-    
+     content = function(file) {save(Msamples,file=file)})     
+    output$downloadMcompositedistupdated <- downloadHandler(
+     filename = function() { paste0("UpdatedMcomposite_samples",Sys.time(),".DMP") },
+     content = function(file) {save(priorMupdate,file=file)})  
    })
+
   }
 #)
 

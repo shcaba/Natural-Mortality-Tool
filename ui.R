@@ -136,9 +136,12 @@ library(shiny)
             br(),
             h4("Composite natural mortality"),
             h5(p(em("Blue vertical line indicates median value"))),
+            h5(p(em("First composite M object is based on the number of specified samples"))),
+            h5(p(em("Second composite M object is based on th adjusted bandwidth"))),
             plotOutput("Mcomposite"),
             downloadButton('downloadMcompositedensityplot', 'Download composite M density plot'),
             downloadButton('downloadMcompositedist', 'Download composite M as R object'),
+            downloadButton('downloadMcompositedistupdated', 'Download bandwidth-adjusted composite M as R object'),
             value=2
           ), id="conditionedPanels"
           )
