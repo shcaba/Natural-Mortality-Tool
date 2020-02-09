@@ -103,7 +103,8 @@ library(shiny)
           tabsetPanel(
           tabPanel("M by method",
           h4("Natural mortality (M) estimates by method"),
-          h5("Legend color indicate inputs used by each method"),
+          h5("Legend color indicate inputs used by each method."),
+          h5("Downloadable R object contains paramter inputs, estimted M point estimates, and age-specific M values."),
           plotOutput("Mplot"),
           h4("Natural mortality (M) point estimates"),
           fluidRow(

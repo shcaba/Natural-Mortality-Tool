@@ -98,7 +98,6 @@ require(reshape2)
         if(inherits(spp_info, "try-error")){
            # Record blanks
         }else{
-           # Values are in log-scale except temperature
            spp_lh_vals_log <- spp_info[[1]]$Mean_pred
            spp_lh_vals <- c(exp(spp_lh_vals_log[1:7]), spp_lh_vals_log[8],spp_lh_vals_log[9:20])
        	 }
@@ -134,7 +133,11 @@ require(reshape2)
  M_vals_all<- reactive({
    fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-NA
    #Fishlife
-   if(input$Genspp!="Type Genus and species here"){fishlife.M.out<-fishlife.M(input$Genspp)}
+   if(length(strsplit(input$Genspp, " ")[[1]])>1)
+   {
+    fishlife.M.out<-try(fishlife.M(input$Genspp))
+    if(inherits(fishlife.M.out,"try-error")==TRUE){fishlife.M.out<-NA}
+  }
    #Longevity
    Then_M_Amax<-Then_M(input$Amax)
    if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
@@ -198,8 +201,10 @@ require(reshape2)
 	  {
 	  Mplots<-ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
            geom_point(size=4)+ylab("M")+xlab("Method")+
-	  	   scale_y_continuous(limits = c(0, NA))+
-	  	   theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))
+	  	     scale_y_continuous(limits = c(0, NA))+
+	  	     #theme_minimal()+
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))
+
 	  }
 	 
       
@@ -447,7 +452,8 @@ require(reshape2)
     geom_area(stat="bin",binwidth=0.005,alpha = 0.5)+
      	scale_fill_manual(values = col.dists(length(unique(dat.plot$Method))),name="Method")+
  		#scale_fill_viridis(option="D",discrete=TRUE,name="Method")+
- 		labs(x="Natural Mortality",y="Density")
+ 		theme_minimal()+
+    labs(x="Natural Mortality",y="Density")
     print(Mdist_plots)
      	
   }
@@ -474,7 +480,8 @@ require(reshape2)
   	Mcomposite.densityplot<-ggplot(data= Msamples,aes(Mval))+
      	geom_density(fill="gray",bw="SJ",adjust=input$ad.bw)+
      	labs(x="Natural Mortality",y="Density")+ 
-     	geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
+     	geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)+
+      theme_minimal()
  	print(Mcomposite.densityplot)
 	
   #  #Calculate density function of point estimates	
