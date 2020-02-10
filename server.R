@@ -407,11 +407,12 @@ require(reshape2)
                                                M.CV.method()[x, meanM], 
                                                M.CV.method()[x, meanM*CVval]))))
 		}
-	M.dists
+  M.dists
  	})
 
 #Plot Individual distributions
  output$Mdistplots<- renderPlot({ 
+   req(!all(is.na(M_vals_all())))
    dist.dat<-M.CV.method()
    if(input$M_CV==0)
    {
@@ -471,11 +472,9 @@ priorMupdate<-reactive({
 
 #Plot Composite M
  output$Mcomposite<- renderPlot({    
- 
-#    if(input$M_CV==0)
-#   {
-	Msamples<-M.dists()
-	priorMupdate<-priorMupdate()
+ 	req(!all(is.na(M_vals_all())))
+  Msamples<-M.dists()
+  priorMupdate<-priorMupdate()
   cdf.out<-ecdf(Msamples$Mval)
   	Mcomposite.densityplot<-ggplot(data= Msamples,aes(Mval))+
      	geom_density(fill="gray",bw="SJ",adjust=input$ad.bw)+
@@ -503,13 +502,7 @@ priorMupdate<-reactive({
   #    #scale_x_continuous(limits=c(0,quantile(M.densum$x,0.99999)))+
 	 #   geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
 	 #   print(Mcomposite.densityplot)
-#   }
    
-#if(input$M_CV>0)
-#   {
-#   	tot.samples<-1000000
-
-#   }
    output$downloadMcompositedensityplot <- downloadHandler(
    filename = function() { paste0('Mcomposite_densityplot',Sys.time(), '.png')},
    content = function(file) {
