@@ -171,8 +171,8 @@ require(reshape2)
    #Create object with all input parameter values
    M_parms_all<-c(input$M_CV,input$M_CV_type,input$Amax,input$Linf,input$k_vbgf,input$t0,input$Age_in,input$Lt_in,input$Amat,input$Temp,input$Winf,input$kw,input$Wdry,input$Wwet,input$GSI,User_M)
    M_parms_names<-c("CV","Error type","Max age","Linf","k","t0","Age","Length","Age mat","Temp","Winf","kW","Dry wt","Wet wt","GSI",M_users)
-   M_parms_names_all<-data.table(Paramter=M_parms_names,Input=M_parms_all)
-   M.out.parms.vals.ages<-list(Paramters= M_parms_names_all,M_estimates=M_methods_vals_all,Age_specific_values=M_vals_ages())
+   M_parms_names_all<-data.table(Parameter=M_parms_names,Input=M_parms_all)
+   M.out.parms.vals.ages<-list(Parameters= M_parms_names_all,M_estimates=M_methods_vals_all,Age_specific_values=M_vals_ages())
    #Create downlaod for M values, parameters and age-specific values
    output$downloadMandPs <- downloadHandler(
      filename = function() {  paste0("M_parms_values_byage_out",Sys.time(),".DMP") },
