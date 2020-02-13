@@ -95,7 +95,14 @@ library(shiny)
         h5(p(em("M prior control parameters"))),
         fluidRow(
            column(6,numericInput("samp.num","Prior sample #",value=1000000,min = 0, max = 10000000,step=1)),
-           column(6,numericInput("ad.bw","Bandwidth multiplier",value=1,min = 0.0001, max = 100,step=0.01)))
+           column(6,numericInput("ad.bw","Bandwidth multiplier",value=1,min = 0.0001, max = 100,step=0.01))),
+        h4(p("Composite M prior downloads")),
+        h5(p(em("Downloads are DMP files that can be loaded directly into R"))),
+        h5(p(em("Higher sample sizes create a composite distribution truer to the component distributions"))),
+        h5(p(em("Adjusting bandwidth >1 creates a more diffuse composite distribution"))),
+        fluidRow(
+           column(6,downloadButton('downloadMcompositedist', 'Based on sample-sized')),
+           column(6,downloadButton('downloadMcompositedistupdated', 'Bandwidth-adjusted')))
         )
        )
        ), #end sidebar
@@ -140,8 +147,8 @@ library(shiny)
             h5(p(em("Second composite M object is based on th adjusted bandwidth"))),
             plotOutput("Mcomposite"),
             downloadButton('downloadMcompositedensityplot', 'Download composite M density plot'),
-            downloadButton('downloadMcompositedist', 'Download composite M as R object'),
-            downloadButton('downloadMcompositedistupdated', 'Download bandwidth-adjusted composite M as R object'),
+            # downloadButton('downloadMcompositedist', 'Download composite M as R object'),
+            # downloadButton('downloadMcompositedistupdated', 'Download bandwidth-adjusted composite M as R object'),
             value=2
           ), id="conditionedPanels"
           )
