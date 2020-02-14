@@ -54,12 +54,12 @@ library(shiny)
           ),
 #          h5("Uses longevity")
           fluidRow(
-            column(6,numericInput("Then_Amax_1","Then_Amax 1",value=0.25,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Then_Amax_2","Then_Amax 2",value=0.25,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Then_nls","Then_nls",value=0.33,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Then_lm","Then_lm",value=0.33,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(6,numericInput("Then_Amax_3","Then_Amax 3",value=0.25,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Hamel_Amax","Hamel_Amax",value=0.25,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Then_1parm","Then_1parm",value=0,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Hamel_Amax","Hamel_Amax",value=0.34,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
             column(6,numericInput("Chen_Wat","Chen-Wat",value=0.5,min = 0, max = 1,step=0.001)),
