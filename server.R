@@ -13,14 +13,22 @@ require(reshape2)
     
     Then_M<-function(Amax)
     {
-      M_vals<-rep(NA,4)
+      M_vals<-rep(NA,3)
       M_vals[1]<-4.889*Amax^-0.916 #Then_nls
-      M_vals[3]<-exp(1.717-1.01*log(Amax)) #Then_lm
-      M_vals[2]<-5.109/Amax #Done in normal space, which is inappropriate
-      M_vals[4]<-5.4/Amax #Hamel, which corrects the above Then by using the data in logspace
+      M_vals[2]<-exp(1.717-1.01*log(Amax)) #Then_lm
+      #M_vals[2]<-5.109/Amax #Done in normal space, which is inappropriate
+      M_vals[3]<-5.4/Amax #Hamel, which corrects the above Then by using the data in logspace
       return(M_vals)
     }
     
+    M_ZM_AC<-function(k,Amax,t0)
+    {
+      Mvals.out<-c(NA,NA)
+      Mvals.out[1]<- (3*k)/(exp(k*((0.302 * Amax)-t0))-1) 
+      Mvals.out[2]<- (3*k)/(exp(k*((0.44 * Amax)-t0))-1)
+      return(Mvals.out) 
+    }
+
     Then_VBGF<-function(Linf,k)
     {
       M_val_vbgf<-4.11*k^0.73*Linf^-0.33
@@ -67,6 +75,23 @@ require(reshape2)
       }
       return(M.out)
     }
+
+    Chen_N_Wat_Mage<-function(Age_in,k,t0)
+    {
+      if(anyNA(c(Age_in,k,t0))){M.out<-NA}
+      else
+      {
+        a<-Age_in
+        tM<--1/k*(log(abs(1-exp(k*t0)))+t0)
+        a0<-1-exp(-k*(tM-t0))
+        a1<-k*exp(-k*(tM-t0))
+        a2<--0.5*k^2*exp(-k*(tM-t0))
+        if(a<=tM){M.out<-k/(1-exp(-k*(a-t0)))}
+        if(a>tM){M.out<-k/(a0+a1*(a-tM)+a2*(a-tM)^2)}
+      }
+      return(M.out)
+    }
+
 
     Gislason_M_a<-function(Amax,Linf,k,t0)
     {
@@ -140,8 +165,9 @@ require(reshape2)
   }
    #Longevity
    Then_M_Amax<-Then_M(input$Amax)
-   if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Age_in,input$k_vbgf,input$t0)
+   #if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
+   ZMAC_M<-M_ZM_AC(k=input$k_vbgf,Amax=input$Amax,t0=input$t0)
+   Chen_N_Wat_Ma<-Chen_N_Wat_Mage(input$Age_in,input$k_vbgf,input$t0)
    #VBGF
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
@@ -158,15 +184,15 @@ require(reshape2)
    if(!(anyNA(c(input$Winf,input$kw,input$Temp)))){Pauly80wt_M<-M.empirical(Winf=input$Winf,Kw=input$kw,TC=input$Temp,method=2)[1]}
    #GSI
    print(if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]})
-   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-1.79*input$GSI}
+   if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-1.817*input$GSI} #Hamel update. Original value is 1.79
    #User inputs
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
    if(length(User_M)==0)User_M<-NA
    M_users<-"User input"
    if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
    #Concatenate all M values
-   M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
-   M_methods<-c("FishLife","Then_nls","Then_lm","Then_1parm","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI",M_users)
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI",M_users)
    M_methods_vals_all<-data.table(Method=M_methods, M=M_vals_all)
    #Create object with all input parameter values
    M_parms_all<-c(input$M_CV,input$M_CV_type,input$Amax,input$Linf,input$k_vbgf,input$t0,input$Age_in,input$Lt_in,input$Amat,input$Temp,input$Winf,input$kw,input$Wdry,input$Wwet,input$GSI,User_M)
@@ -186,8 +212,8 @@ require(reshape2)
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
    M_users<-"User input"
    if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
-   M_methods<-c("FishLife","Then_nls","Then_lm","Then_1parm","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI",M_users)
-   M_types<-c("Meta-analysis",rep("Amax",4),rep("Amax:VBGF",2),rep("VBGF",4),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",3),rep("GSI",1),rep("User input",length(M_users)))
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","PnW","Lorenzen","GSI",M_users)
+   M_types<-c("Meta-analysis",rep("Amax",3),rep("Amax:VBGF",3),rep("VBGF",4),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",3),rep("GSI",1),rep("User input",length(M_users)))
    M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
    colnames(M_vals_gg)<-c("M","Method","Input")
    M_vals_gg$Method<-factor(M_vals_gg$Method,levels=unique(M_vals_gg$Method))
@@ -267,14 +293,16 @@ require(reshape2)
     if(inherits(fishlife.M.out,"try-error")==TRUE){fishlife.M.out<-NA}
   }
    Then_M_Amax<-Then_M(input$Amax)
-   if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
+   #if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
+   #if(!(anyNA(c(input$k_vbgf,input$Amax,input$t0)))){ZMAC_M<-M_ZM_AC(k=input$k_vbgf,Amax=input$Amax,t0=input$t0)}
+   ZMAC_M<-M_ZM_AC(k=input$k_vbgf,Amax=input$Amax,t0=input$t0)
    Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
-   CnW_M_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0)
+   Chen_N_Wat_Ma<-Chen_N_Wat_Mage(input$Age_in,input$k_vbgf,input$t0)
    
-   M_vals_all<-c(fishlife.M.out,Then_M_Amax,CnW_M_VBGF,AnC75_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M)
-   M_methods<-c("FishLife","Then_nls","Then_lm","Then_1parm","Hamel_Amax","Chen-Wat","AnC","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason")
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Jensen_M_VBGF,Gislason_M)
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Jensen_VBGF 1","Jensen_VBGF 2","Gislason")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
    colnames(M_table)<-c("Method","M")
    #rownames(M_table)<-M_methods
@@ -324,11 +352,11 @@ require(reshape2)
    M.wts<-c(input$FishLife,
    			input$Then_nls,
    			input$Then_lm,
-   			input$Then_1parm,
    			input$Hamel_Amax,
    			input$Chen_Wat,
-   			input$AnC,
-   			input$Then_VBGF,
+   			input$ZM_CA_pel,
+   			input$ZM_CA_dem,
+        input$Then_VBGF,
    			input$Jensen_VBGF_1,
    			input$Jensen_VBGF_2,
    			input$Gislason,
@@ -344,11 +372,11 @@ require(reshape2)
    names(M.wts)<-c("FishLife",
    					"Then_nls",
    					"Then_lm",
-   					"Then_1parm",
    					"Hamel_Amax",
    					"Chen-Wat",
-   					"AnC",
-   					"Then_VBGF",
+   					"ZM_CA_pel",
+   					"ZM_CA_dem",
+            "Then_VBGF",
    					"Jensen_VBGF 1",
    					"Jensen_VBGF 2",
    					"Gislason",

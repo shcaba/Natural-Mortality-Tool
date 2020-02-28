@@ -58,12 +58,12 @@ library(shiny)
             column(6,numericInput("Then_lm","Then_lm",value=0.33,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(6,numericInput("Then_1parm","Then_1parm",value=0,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Hamel_Amax","Hamel_Amax",value=0.34,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Hamel_Amax","Hamel_Amax",value=0.34,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Chen_Wat","Chen-Wat",value=0.5,min = 0, max = 1,step=0.001))            
           ),
           fluidRow(
-            column(6,numericInput("Chen_Wat","Chen-Wat",value=0.5,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("AnC","AnC",value=0,min = 0, max = 1,step=0.001))
+            column(6,numericInput("ZM_CA_pel","ZM_CA_pel",value=0,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("ZM_CA_dem","ZM_CA_dem",value=0,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
             column(6,numericInput("Then_VBGF","Then_VBGF",value=0.34,min = 0, max = 1,step=0.001)),
@@ -71,7 +71,7 @@ library(shiny)
           ),
           fluidRow(
             column(6,numericInput("Jensen_VBGF_2","Jensen_VBGF 2",value=0.33,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Gislason","Gislason",value=1,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Gislason","Gislason",value=0.5,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
             column(6,numericInput("Pauly_lt","Pauly_lt",value=0.5,min = 0, max = 1,step=0.001)),
