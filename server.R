@@ -169,7 +169,7 @@ require(reshape2)
    ZMAC_M<-M_ZM_AC(k=input$k_vbgf,Amax=input$Amax,t0=input$t0)
    Chen_N_Wat_Ma<-Chen_N_Wat_Mage(input$Age_in,input$k_vbgf,input$t0)
    #VBGF
-   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
+   Then_M_VBGF<-Then_VBGF(input$Linf,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in))))
    	{Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
@@ -296,7 +296,7 @@ require(reshape2)
    #if(!(anyNA(c(input$k_vbgf,input$Amax)))){AnC75_M<-M.empirical(Kl=input$k_vbgf,tmax=input$Amax,method=4)[1]}
    #if(!(anyNA(c(input$k_vbgf,input$Amax,input$t0)))){ZMAC_M<-M_ZM_AC(k=input$k_vbgf,Amax=input$Amax,t0=input$t0)}
    ZMAC_M<-M_ZM_AC(k=input$k_vbgf,Amax=input$Amax,t0=input$t0)
-   Then_M_VBGF<-Then_VBGF(input$Linf*10,input$k_vbgf)
+   Then_M_VBGF<-Then_VBGF(input$Linf,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
    Chen_N_Wat_Ma<-Chen_N_Wat_Mage(input$Age_in,input$k_vbgf,input$t0)
