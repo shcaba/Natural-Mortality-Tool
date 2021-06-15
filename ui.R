@@ -54,12 +54,12 @@ library(shiny)
           ),
 #          h5("Uses longevity")
           fluidRow(
-            column(6,numericInput("Then_nls","Then_nls",value=0.33,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Then_lm","Then_lm",value=0.33,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Then_nls","Then_nls",value=0.25,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Then_lm","Then_lm",value=0.25,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(6,numericInput("Hamel_Amax","Hamel_Amax",value=0.34,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Chen_Wat","Chen-Wat",value=0.5,min = 0, max = 1,step=0.001))            
+            column(6,numericInput("Hamel_Amax","Hamel_Amax",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Chen_Wat","Chen-Wat",value=0.333,min = 0, max = 1,step=0.001))            
           ),
           fluidRow(
             column(6,numericInput("ZM_CA_pel","ZM_CA_pel",value=0,min = 0, max = 1,step=0.001)),
@@ -67,34 +67,35 @@ library(shiny)
           ),
           fluidRow(
             column(6,numericInput("Then_VBGF","Then_VBGF",value=0.25,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Hamel_VBGF","Hame_k",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Hamel_VBGF","Hamel_k",value=0.5,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(6,numericInput("Jensen_VBGF_1","Hamel_k 1",value=0.25,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Jensen_VBGF_2","Hamel_k 2",value=0.0,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Jensen_VBGF_1","Jensen_k 1",value=0.25,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Jensen_VBGF_2","Jensen_k 2",value=0.0,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(6,numericInput("Gislason","Gislason",value=0.5,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Pauly_lt","Pauly_lt",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Gislason","Gislason",value=0.333,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Charnov","Charnov",value=0.333,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(6,numericInput("Roff","Roff",value=0.5,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Jensen_Amat","Jensen_Amat",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Pauly_lt","Pauly_lt",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Roff","Roff",value=0.5,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
-            column(6,numericInput("Ri_Ef_Amat","Ri_Ef_Amat",value=0.5,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Pauly_wt","Pauly_wt",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Jensen_Amat","Jensen_Amat",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Ri_Ef_Amat","Ri_Ef_Amat",value=0.5,min = 0, max = 1,step=0.001))
         ),
           fluidRow(
-            column(6,numericInput("McGl","McC&Gil",value=0.5,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("PnW","PnW",value=0.5,min = 0, max = 1,step=0.001))
+            column(6,numericInput("Pauly_wt","Pauly_wt",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("McGl","McC&Gil",value=0.5,min = 0, max = 1,step=0.001))
           ),
 
           fluidRow(
-            column(6,numericInput("Lorenzen","Lorenzen",value=1,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001))
+            column(6,numericInput("PnW","PnW",value=0.5,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("Lorenzen","Lorenzen",value=1,min = 0, max = 1,step=0.001))
         ),
          fluidRow(
+            column(6,numericInput("Gonosoma","GSI",value=1,min = 0, max = 1,step=0.001)),
            column(6,numericInput("UserM_wt","User M",value=1,min = 0, max = 1,step=0.001))
         ),
         h5(p(em("M prior control parameters"))),

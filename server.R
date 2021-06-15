@@ -178,7 +178,7 @@ require(reshape2)
  
  #Calcualte individual estimates of M   
  M_vals_all<- reactive({
-   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-McCGil_M<-NA
+   fishlife.M.out<-Pauly80lt_M<-Pauly80wt_M<-AnC75_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-Charnov_M<-McCGil_M<-NA
    #Fishlife
    if(length(strsplit(input$Genspp, " ")[[1]])>1)
    {
@@ -195,7 +195,10 @@ require(reshape2)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    Hamel_M_VBGF<-Hamel_M_k(input$k_vbgf) 
    if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in))))
-   	{Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
+   	{
+      Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]
+      Charnov_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,L=input$Lt_in,method=13)[1]
+    }
    #Maturity
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
@@ -215,8 +218,8 @@ require(reshape2)
    M_users<-"User input"
    if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
    #Concatenate all M values
-   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF,Gislason_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,McCGil_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
-   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF,Gislason_M,Charnov_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,McCGil_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
    M_methods_vals_all<-data.table(Method=M_methods, M=M_vals_all)
    #Create object with all input parameter values
    M_parms_all<-c(input$M_CV,input$M_CV_type,input$Amax,input$Linf,input$k_vbgf,input$t0,input$Age_in,input$Lt_in,input$Amat,input$Temp,input$Winf,input$kw,input$Wdry,input$Wwet,input$GSI,User_M)
@@ -236,8 +239,8 @@ require(reshape2)
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
    M_users<-"User input"
    if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
-   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2","Gislason","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
-   M_types<-c("Meta-analysis",rep("Amax",3),rep("Amax:VBGF",3),rep("VBGF",5),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",4),rep("GSI",1),rep("User input",length(M_users)))
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
+   M_types<-c("Meta-analysis",rep("Amax",3),rep("Amax:VBGF",3),rep("VBGF",6),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",4),rep("GSI",1),rep("User input",length(M_users)))
    M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
    colnames(M_vals_gg)<-c("M","Method","Input")
    M_vals_gg$Method<-factor(M_vals_gg$Method,levels=unique(M_vals_gg$Method))
@@ -310,7 +313,7 @@ require(reshape2)
 
 # Show the first "n" observations
  output$Mtable <- renderTable({
-   fishlife.M.out<-AnC75_M<-Gislason_M<-NA
+   fishlife.M.out<-AnC75_M<-Gislason_M<-Charnov_M<-NA
    if(length(strsplit(input$Genspp, " ")[[1]])>1)
    {
     fishlife.M.out<-try(fishlife.M(input$Genspp))
@@ -323,11 +326,15 @@ require(reshape2)
    Then_M_VBGF<-Then_VBGF(input$Linf,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    Hamel_M_VBGF<-Hamel_M_k(input$k_vbgf) 
-   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in)))){Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]}
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in))))
+   {
+    Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]
+    Charnov_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,L=input$Lt_in,method=13)[1]
+   }
    Chen_N_Wat_Ma<-Chen_N_Wat_Mage(input$Age_in,input$k_vbgf,input$t0)
    
-   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF,Gislason_M)
-   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2","Gislason")
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF,Gislason_M,Charnov_M)
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2","Gislason","Charnov")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
    colnames(M_table)<-c("Method","M")
    #rownames(M_table)<-M_methods
@@ -387,7 +394,8 @@ require(reshape2)
         input$Jensen_VBGF_1,
    			input$Jensen_VBGF_2,
    			input$Gislason,
-   			input$Pauly_lt,
+   	    input$Charnov,
+    		input$Pauly_lt,
    			input$Roff,
    			input$Jensen_Amat,
    			input$Ri_Ef_Amat,
@@ -409,7 +417,8 @@ require(reshape2)
             "Jensen_k1",
    					"Jensen_k2",
    					"Gislason",
-   					"Pauly_lt",
+   					"Charnov",
+            "Pauly_lt",
    					"Roff",
    					"Jensen_Amat",
    					"Ri_Ef_Amat",
