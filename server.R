@@ -543,11 +543,18 @@ priorMupdate<-reactive({
   Msamples<-M.dists()
   priorMupdate<-priorMupdate()
   cdf.out<-ecdf(Msamples$Mval)
+  annotations <- data.frame(
+        xpos = c(Inf,Inf),
+        ypos =  c(Inf,Inf),
+        annotateText = c(paste0("Median=",round(quantile(Msamples$Mval,0.5),3)),paste0("Mean=",round(mean(Msamples$Mval),3))),
+        hjustvar = c(1.5,1.5) ,
+        vjustvar = c(3,5)) #<- adjust
   	Mcomposite.densityplot<-ggplot(data= Msamples,aes(Mval))+
      	geom_density(fill="gray",bw="SJ",adjust=input$ad.bw)+
      	labs(x="Natural Mortality",y="Density")+ 
-     	geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)+
-      theme_minimal()
+     	geom_vline(xintercept = c(mean(Msamples$Mval),quantile(Msamples$Mval,0.5)),color=c("darkgreen","darkblue"),size=1.2)+
+      theme_minimal()+
+      geom_text(data=annotations,aes(x=xpos,y=ypos,hjust=hjustvar,vjust=vjustvar,label=annotateText),size=10,col=c("darkblue","darkgreen"))
  	print(Mcomposite.densityplot)
 	
   #  #Calculate density function of point estimates	

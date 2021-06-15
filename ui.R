@@ -2,7 +2,7 @@ library(shiny)
 
 #shinyUI(
   fluidPage(
-    titlePanel("Estimating Natural Mortality (M)"),
+    titlePanel("The Natural Mortality Tool: Estimating Natural Mortality (M)"),
     h5(p(em("This tool employs various empirical estimators of natural mortality."))),
     h5(p(em("As the user enters values for the below input parameters,"))), 
     h5(p(em("estimates will be displayed in the main panel."))),
