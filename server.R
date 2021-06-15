@@ -100,10 +100,18 @@ require(reshape2)
 
     Gislason_M_a<-function(Amax,Linf,k,t0)
     {
-		Lts<-Linf*(1-exp(-k*(c(1:Amax)-t0)))
-		Gis_Ms_a<-mapply(function(x) M.empirical(Linf=Linf,Kl=k,Bl=Lts[x],method=9)[1],x=1:length(Lts),SIMPLIFY=TRUE)
-		return(Gis_Ms_a)
+		  Lts<-Linf*(1-exp(-k*(c(1:Amax)-t0)))
+		  Gis_Ms_a<-mapply(function(x) M.empirical(Linf=Linf,Kl=k,Bl=Lts[x],method=9)[1],x=1:length(Lts),SIMPLIFY=TRUE)
+		  return(Gis_Ms_a)
     }
+
+    Charnov_M_a<-function(Amax,Linf,k,t0)
+    {
+      Lts<-Linf*(1-exp(-k*(c(1:Amax)-t0)))
+      Charnov_Ms_a<-mapply(function(x) M.empirical(Linf=Linf,Kl=k,L=Lts[x],method=13)[1],x=1:length(Lts),SIMPLIFY=TRUE)
+      return(Charnov_Ms_a)
+    }
+
 
   McCoyGillooly_M<-function(Mass,Temp)
   {
@@ -149,15 +157,18 @@ require(reshape2)
     
   #Calculate age-specific M values
    M_vals_ages<- reactive({
-    CnW_M_a_VBGF<-Gislason_M_ages<-NA
-    M_vals_ages<-data.table(Age=NA,CnW_M=CnW_M_a_VBGF,Gislason_M=Gislason_M_ages)
+    CnW_M_a_VBGF<-Gislason_M_ages<-Charnov_M_ages<-NA
+    M_vals_ages<-data.table(Age=NA,CnW_M=CnW_M_a_VBGF,Gislason_M=Gislason_M_ages,Charnov_M=Charnov_M_ages)
+    #Calculate Charnov
+    if(!(anyNA(c(input$Amax,input$Linf,input$k_vbgf,input$t0))))
+    {Charnov_M_ages<-Charnov_M_a(input$Amax,input$Linf,input$k_vbgf,input$t0)}
     #Calculate Gislason
     if(!(anyNA(c(input$Amax,input$Linf,input$k_vbgf,input$t0))))
     {Gislason_M_ages<-Gislason_M_a(input$Amax,input$Linf,input$k_vbgf,input$t0)}
     #Calculate Chen & Watanabe
     CnW_M_a_VBGF<-Chen_N_Wat_M(input$Amax,input$k_vbgf,input$t0,out.type = 0)
     #Put table together
-    if(!is.na(input$Amax)){M_vals_ages<-data.table(Age=c(1:input$Amax),CnW_M=CnW_M_a_VBGF,Gislason_M=Gislason_M_ages)}
+    if(!is.na(input$Amax)){M_vals_ages<-data.table(Age=c(1:input$Amax),CnW_M=CnW_M_a_VBGF,Gislason_M=Gislason_M_ages,Charnov_M=Charnov_M_ages)}
     #Create download object for the age-specific values csv file
     output$downloadCW_M_a <- downloadHandler(
      filename = function() {paste0("Age_specific_M_values", '.csv') },
