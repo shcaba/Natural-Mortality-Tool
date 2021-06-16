@@ -313,7 +313,7 @@ require(reshape2)
 
 # Show the first "n" observations
  output$Mtable <- renderTable({
-   fishlife.M.out<-AnC75_M<-Gislason_M<-Charnov_M<-NA
+   fishlife.M.out<-AnC75_M<-NA
    if(length(strsplit(input$Genspp, " ")[[1]])>1)
    {
     fishlife.M.out<-try(fishlife.M(input$Genspp))
@@ -326,15 +326,10 @@ require(reshape2)
    Then_M_VBGF<-Then_VBGF(input$Linf,input$k_vbgf)
    Jensen_M_VBGF<-Jensen_M_k(input$k_vbgf) 
    Hamel_M_VBGF<-Hamel_M_k(input$k_vbgf) 
-   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in))))
-   {
-    Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]
-    Charnov_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,L=input$Lt_in,method=13)[1]
-   }
    Chen_N_Wat_Ma<-Chen_N_Wat_Mage(input$Age_in,input$k_vbgf,input$t0)
    
-   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF,Gislason_M,Charnov_M)
-   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2","Gislason","Charnov")
+   M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF)
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
    colnames(M_table)<-c("Method","M")
    #rownames(M_table)<-M_methods
@@ -342,7 +337,12 @@ require(reshape2)
   })
 # Show the first "n" observations
  output$Mtable2 <- renderTable({
-   Jensen_M_Amat<-Pauly80lt_M<-Pauly80wt_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-McCGil_M<-NA
+   Jensen_M_Amat<-Pauly80lt_M<-Pauly80wt_M<-Roff_M<-GnD_GSI_M<-PnW_M<-Lorenzen96_M<-Gislason_M<-McCGil_M<-Charnov_M<-NA
+   if(!(anyNA(c(input$Linf,input$k_vbgf,input$Lt_in))))
+   {
+    Gislason_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,Bl=input$Lt_in,method=9)[1]
+    Charnov_M<-M.empirical(Linf=input$Linf,Kl=input$k_vbgf,L=input$Lt_in,method=13)[1]
+   }
    if(!(anyNA(c(input$k_vbgf,input$Amat)))){Roff_M<-M.empirical(Kl=input$k_vbgf,tm=input$Amat,method=5)[1]}
    Jensen_M_Amat<-Jensen_M_amat(input$Amat)
    Rikhter_Efanov_Amat<-Rikhter_Efanov_Amat_M(input$Amat)
@@ -355,8 +355,8 @@ require(reshape2)
    #if(!(anyNA(c(input$GSI)))){GnD_GSI_M<-M.empirical(GSI=input$GSI,method=6)[1]}
    #User_M<-input$User_M
    
-   M_vals_all<-c(Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,McCGil_M,PnW_M,Lorenzen96_M,GnD_GSI_M)
-   M_methods<-c("Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI")
+   M_vals_all<-c(Gislason_M,Charnov_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,McCGil_M,PnW_M,Lorenzen96_M,GnD_GSI_M)
+   M_methods<-c("Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI")
    M_table<-data.frame(M_vals_all)
    #rownames(M_table)<-M_methods
    #colnames(M_table)<-"M"
