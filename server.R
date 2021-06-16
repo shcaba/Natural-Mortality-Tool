@@ -256,8 +256,7 @@ require(reshape2)
            geom_point(size=4)+ylab("M")+xlab("Method")+
 	  	     scale_y_continuous(limits = c(0, NA))+
 	  	     #theme_minimal()+
-           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))
-
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5,size=14),axis.title=element_text(size=18))
 	  }
 	 
       
@@ -300,7 +299,8 @@ require(reshape2)
     Mplot_ages<-ggplot(M_vals_ages_melt,aes(Age,M,color=Method))+
     geom_point(size=4)+
     #scale_y_continuous(limits = c(0, NA))+
-    labs(x="Age",y="Natural mortality")
+    labs(x="Age",y="Natural mortality")+
+    theme(axis.text=element_text(size=14),axis.title=element_text(size=18))
     print(Mplot_ages)
      output$downloadMplot_ages <- downloadHandler(
     filename = function() { paste0('Mplot_ages',Sys.time(), '.png')},
