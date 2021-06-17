@@ -6,9 +6,10 @@ library(shiny)
     h5(p(em("This tool employs various empirical estimators of natural mortality."))),
     h5(p(em("As the user enters values for the below input parameters, estimates will be displayed in the main panel."))), 
     h5(p(em("Uncertainty can also be added to the estimates by chosing a coefficient of variation (CV) value and error distribution type."))),
-    h5(p(em("Downloaded R objects (.DMP) can be loaded directly into R or, if using the R terminal, drag and dropped in."))),
+    h5(p(em("Downloaded R objects (.DMP) can be loaded directly into R or, if using the R terminal, drag and drop in."))),
     br(),
     h4(p("References for each method can be found",tags$a(href="javascript:window.open('References_M.html', '_blank','width=600,height=400')", "here"))),
+    h4(p("Do you have any suggested methods to add? Please submit an issue with the recommendation" ,tags$a(href="https://github.com/shcaba/Natural-Mortality-Tool/issues", "here"))),
     
     sidebarLayout(
     sidebarPanel(
