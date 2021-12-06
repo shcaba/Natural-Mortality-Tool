@@ -1,4 +1,4 @@
-# The Natural Mortality Tool (SS-DL tool)
+# The Natural Mortality Tool (NMT)
 
 The Natrual Mortality tool offers an accessible way to estimate natural mortality fro a variety of life history information. The tool also offers a means to include uncertainty and combine multiple estimators into a non-parametric distribution. 
 <br></br>
