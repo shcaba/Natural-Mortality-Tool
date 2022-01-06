@@ -219,7 +219,7 @@ require(reshape2)
    if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
    #Concatenate all M values
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF,Gislason_M,Charnov_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,McCGil_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
-   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_AC_pel","ZM_AC_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
    M_methods_vals_all<-data.table(Method=M_methods, M=M_vals_all)
    #Create object with all input parameter values
    M_parms_all<-c(input$M_CV,input$M_CV_type,input$Amax,input$Linf,input$k_vbgf,input$t0,input$Age_in,input$Lt_in,input$Amat,input$Temp,input$Winf,input$kw,input$Wdry,input$Wwet,input$GSI,User_M)
@@ -239,7 +239,7 @@ require(reshape2)
    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
    M_users<-"User input"
    if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
-   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_AC_pel","ZM_AC_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
    M_types<-c("Meta-analysis",rep("Amax",3),rep("Amax:VBGF",3),rep("VBGF",6),rep("VBGF:Temp",1),"VBGF:Amat",rep("Amat",2),rep("Weight",4),rep("GSI",1),rep("User input",length(M_users)))
    M_vals_gg<-as.data.frame(cbind(M_vals_all,M_methods,M_types))
    colnames(M_vals_gg)<-c("M","Method","Input")
@@ -256,16 +256,16 @@ require(reshape2)
            geom_point(size=4)+ylab("M")+xlab("Method")+
 	  	     scale_y_continuous(limits = c(0, NA))+
 	  	     #theme_minimal()+
-           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5,size=14),axis.title=element_text(size=18))
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5,size=16),axis.title=element_text(size=18),text=element_text(size = 14))
 	  }
-	 
+
       
 	  if(input$M_CV>0 & input$M_CV_type=="lognormal")
 	  {
       Mplots<-ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
            geom_point(size=4)+ylab("M")+xlab("Method")+
            scale_y_continuous(limits = c(0, NA))+
-           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5),axis.text=element_text(size=16),axis.title=element_text(size=18),text=element_text(size = 14))+
    		   geom_pointrange(aes(ymin=qlnorm(0.025,log(as.numeric(as.character(M))),input$M_CV),ymax=qlnorm(0.975,log(as.numeric(as.character(M))),input$M_CV)))
       	   
       }
@@ -274,7 +274,7 @@ require(reshape2)
 	  {
       Mplots<-ggplot(M_vals_gg,aes(Method,as.numeric(as.character(M)),color=Input))+
            geom_point(size=4)+ylab("M")+xlab("Method")+
-           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
+           theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5),axis.text=element_text(size=16),axis.title=element_text(size=18),text=element_text(size = 14))+
    		     geom_pointrange(aes(ymin=qtruncnorm(0.025,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV),ymax=qtruncnorm(0.975,a=0,mean=as.numeric(as.character(M)),sd=as.numeric(as.character(M))*input$M_CV)))
       }
       print(Mplots)
@@ -300,7 +300,7 @@ require(reshape2)
     geom_point(size=4)+
     #scale_y_continuous(limits = c(0, NA))+
     labs(x="Age",y="Natural mortality")+
-    theme(axis.text=element_text(size=14),axis.title=element_text(size=18))
+    theme(axis.text=element_text(size=16),axis.title=element_text(size=18),text=element_text(size = 14))
     print(Mplot_ages)
      output$downloadMplot_ages <- downloadHandler(
     filename = function() { paste0('Mplot_ages',Sys.time(), '.png')},
@@ -329,7 +329,7 @@ require(reshape2)
    Chen_N_Wat_Ma<-Chen_N_Wat_Mage(input$Age_in,input$k_vbgf,input$t0)
    
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF)
-   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_CA_pel","ZM_CA_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2")
+   M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_AC_pel","ZM_AC_dem","Then_VBGF","Hamel_k","Jensen_k 1","Jensen_k 2")
    M_table<-data.frame(cbind(M_methods,signif(M_vals_all,3)))
    colnames(M_table)<-c("Method","M")
    #rownames(M_table)<-M_methods
@@ -387,8 +387,8 @@ require(reshape2)
    			input$Then_lm,
    			input$Hamel_Amax,
    			input$Chen_Wat,
-   			input$ZM_CA_pel,
-   			input$ZM_CA_dem,
+   			input$ZM_AC_pel,
+   			input$ZM_AC_dem,
         input$Then_VBGF,
    			input$Hamel_VBGF,
         input$Jensen_VBGF_1,
@@ -410,8 +410,8 @@ require(reshape2)
    					"Then_lm",
    					"Hamel_Amax",
    					"Chen-Wat",
-   					"ZM_CA_pel",
-   					"ZM_CA_dem",
+   					"ZM_AC_pel",
+   					"ZM_AC_dem",
             "Then_VBGF",
    					"Hamel_k",
             "Jensen_k1",
@@ -490,7 +490,7 @@ require(reshape2)
 	 geom_point(color="blue")+
 	 scale_size_area(name  ="Weighting")+
 	 scale_y_continuous(limits = c(0, NA))+
-	 theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
+	 theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5),axis.text=element_text(size=16),axis.title=element_text(size=18),text=element_text(size = 14))+
 	 labs(x="Method",y="Natural Mortality")
    print(Mdist_plots)
    }
@@ -509,6 +509,7 @@ require(reshape2)
      	scale_fill_manual(values = col.dists(length(unique(dat.plot$Method))),name="Method")+
  		#scale_fill_viridis(option="D",discrete=TRUE,name="Method")+
  		theme_minimal()+
+    theme(axis.text=element_text(size=16),axis.title=element_text(size=18),text=element_text(size = 14))+
     labs(x="Natural Mortality",y="Density")
     print(Mdist_plots)
   }
@@ -554,6 +555,7 @@ priorMupdate<-reactive({
      	labs(x="Natural Mortality",y="Density")+ 
      	geom_vline(xintercept = c(mean(Msamples$Mval),quantile(Msamples$Mval,0.5)),color=c("darkgreen","darkblue"),size=1.2)+
       theme_minimal()+
+      theme(axis.text=element_text(size=16),axis.title=element_text(size=18),text=element_text(size = 14))+
       geom_text(data=annotations,aes(x=xpos,y=ypos,hjust=hjustvar,vjust=vjustvar,label=annotateText),size=10,col=c("darkblue","darkgreen"))
  	print(Mcomposite.densityplot)
 	

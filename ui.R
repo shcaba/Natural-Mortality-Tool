@@ -46,7 +46,7 @@ library(shiny)
        h3("Composite M: method weighting"),
        h5(p(em("Allows for weighting of the contribution of each method in the composite M distribution"))),
        h5("Values range from 0 to 1. A value of 0 removes the contribution; a value of 1 is full weighting."),
-       h5("Default values are based on redundancies of methods using similar information. For instance,the four longevity-based methods are given a weight of 0.25, so all weighted together equal 1."),
+       h5("Default values are based on redundancies of methods using similar information. For instance, of the three longevity-based methods, two given a weight of 0.25 and one a weight of 0.5, so all weighted together equal 1."),
        h5("The prior sample number generates a prior based on the number of specified samples. This value also defines the binwidth in the density plot, thus lower sample numbers will give a more diffuse prior."),
        wellPanel(
           fluidRow(
@@ -62,8 +62,8 @@ library(shiny)
             column(6,numericInput("Chen_Wat","Chen-Wat",value=0.333,min = 0, max = 1,step=0.001))            
           ),
           fluidRow(
-            column(6,numericInput("ZM_CA_pel","ZM_CA_pel",value=0,min = 0, max = 1,step=0.001)),
-            column(6,numericInput("ZM_CA_dem","ZM_CA_dem",value=0,min = 0, max = 1,step=0.001))
+            column(6,numericInput("ZM_AC_pel","ZM_AC_pel",value=0,min = 0, max = 1,step=0.001)),
+            column(6,numericInput("ZM_AC_dem","ZM_AC_dem",value=0,min = 0, max = 1,step=0.001))
           ),
           fluidRow(
             column(6,numericInput("Then_VBGF","Then_VBGF",value=0.25,min = 0, max = 1,step=0.001)),
