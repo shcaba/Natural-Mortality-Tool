@@ -8,7 +8,7 @@ require(viridis)
 require(reshape2)
 
 #shinyServer(
-  function(input, output) 
+  function(input, output, session) 
   {    
     
     Then_M<-function(Amax)
@@ -49,7 +49,7 @@ require(reshape2)
     
     Hamel_M_k<-function(k)
     {
-      M_val_Hamel_k<-k*1.753
+      M_val_Hamel_k<-k*1.55
       return(M_val_Hamel_k)
     }
     
@@ -115,7 +115,7 @@ require(reshape2)
 
   McCoyGillooly_M<-function(Mass,Temp)
   {
-    McCGil_M<-((Mass/4)^-.25)*exp(-7540*((1/(273+Temp))-(1/293)))
+    McCGil_M<-3.2*((Mass/4)^-.27)*exp(-7540*((1/(273+Temp))-(1/293.15)))
     return(McCGil_M)
   }
     
@@ -152,6 +152,69 @@ require(reshape2)
   	}
   	 else{return(NA)}     
 	}
+
+priorcomb<-function(medianvec,sdvec,log,interval){
+#medianvec = vector of medians in real space = means in real space and gives means in log space when transformed
+#sd vec = standard deviations in either real or log space
+#log indicates if in real (0) or log space (anything else - I put in 1)
+#interval = confidence interval coverage - typcially 0.9 or 0.95
+  n <- length(medianvec)
+  if(length(sdvec)==1){
+    sdvec=crep(sdvec,n)}
+  invar <- 1/(sdvec^2)
+  wt<- invar/sum(invar)
+  if(log==0){
+    mean <- sum(wt*medianvec)
+    sd <- sqrt(1/sum(invar))
+    upper<-max(medianvec+3*sdvec)
+    lower<-min(medianvec-3*sdvec)
+    range<-upper-lower
+    x <- lower+c(0:1000)*range/1000
+    y <- dnorm(x,mean,sd)
+    ui <- qnorm((1+interval)/2,mean,sd)
+    li <- qnorm((1-interval)/2,mean,sd)
+    plot(x,y,type = "l",lty=4,xlab ="M", ylab="density")
+    for(i in 1:n){
+  m<-medianvec[i]
+  sdm<-sdvec[i]
+  y<-dnorm(x,m,sdm)
+  lines(x,y)}
+    col1<-c("mean","sd","CIlower","CIupper")
+    return(cbind(col1,c(mean,sd,li,ui)))
+  }
+  else
+    {
+    lmedianvec<-log(medianvec)
+    meanl <- sum(wt*lmedianvec)
+    sd <- sqrt(1/sum(invar))
+    upper<-max(lmedianvec+3*sdvec)
+    lower<-min(lmedianvec-3*sdvec)
+    range<-upper-lower
+    x <- lower+c(0:1000)*range/1000
+    y <- dnorm(x,meanl,sd)
+    upperl<-exp(max(lmedianvec+sdvec))
+    xx<-c(0:1000)*upperl/1000
+    yy <- dlnorm(xx,meanl,sd)
+    ui <- qnorm((1+interval)/2,meanl,sd)
+    li <- qnorm((1-interval)/2,meanl,sd)
+    par(mfrow=c(2,1))
+    plot(x,y,type = "l",lty=4,xlab ="ln M", ylab="density")
+    for(i in 1:n){
+  m<-lmedianvec[i]
+  sdm<-sdvec[i]
+  y<-dnorm(x,m,sdm)
+  lines(x,y)}
+    plot(xx,yy,type = "l",lty=4,xlab ="M", ylab="density")
+    lines(xx,yy,type="l",lty=4)
+    for(i in 1:n){
+  m<-lmedianvec[i]
+  sdm<-sdvec[i]
+  yy<-dlnorm(xx,m,sdm)
+  lines(xx,yy)}
+    col1<-c("logmean","logsd","Mean","Median","CIlower","CIupper")
+    return(data.frame(Label=col1,Value=c(meanl,sd,exp(meanl+(sd^2)/2),exp(meanl),exp(li),exp(ui))))
+  }
+}
     
 ####### END FUNCTIONS ########
     
@@ -220,15 +283,17 @@ require(reshape2)
    #Concatenate all M values
    M_vals_all<-c(fishlife.M.out,Then_M_Amax,Chen_N_Wat_Ma,ZMAC_M,Then_M_VBGF,Hamel_M_VBGF,Jensen_M_VBGF,Gislason_M,Charnov_M,Pauly80lt_M,Roff_M,Jensen_M_Amat,Rikhter_Efanov_Amat,Pauly80wt_M,McCGil_M,PnW_M,Lorenzen96_M,GnD_GSI_M,User_M)
    M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_AC_pel","ZM_AC_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
-   M_methods_vals_all<-data.table(Method=M_methods, M=M_vals_all)
+   M_methods_vals_all<-data.table(Method=M_methods, M=M_vals_all,Error_type=input$M_CV_type,CV=input$M_CV)
    #Create object with all input parameter values
-   M_parms_all<-c(input$M_CV,input$M_CV_type,input$Amax,input$Linf,input$k_vbgf,input$t0,input$Age_in,input$Lt_in,input$Amat,input$Temp,input$Winf,input$kw,input$Wdry,input$Wwet,input$GSI,User_M)
-   M_parms_names<-c("CV","Error type","Max age","Linf","k","t0","Age","Length","Age mat","Temp","Winf","kW","Dry wt","Wet wt","GSI",M_users)
+   M_parms_all<-c(input$Amax,input$Linf,input$k_vbgf,input$t0,input$Age_in,input$Lt_in,input$Amat,input$Temp,input$Winf,input$kw,input$Wdry,input$Wwet,input$GSI,User_M)
+   M_parms_names<-c("Max age","Linf","k","t0","Age","Length","Age mat","Temp","Winf","kW","Dry wt","Wet wt","GSI",M_users)
    M_parms_names_all<-data.table(Parameter=M_parms_names,Input=M_parms_all)
    M.out.parms.vals.ages<-list(Parameters= M_parms_names_all,M_estimates=M_methods_vals_all,Age_specific_values=M_vals_ages())
    #Create downlaod for M values, parameters and age-specific values
+   timestamp<-format(Sys.time(), "%a %b %d %Y %X")
+   timestamp<-gsub(":","",timestamp)
    output$downloadMandPs <- downloadHandler(
-     filename = function() {  paste0("M_parms_values_byage_out",Sys.time(),".DMP") },
+     filename = function() {  paste0("M_parms_values_byage_out",timestamp,".DMP") },
      content = function(file) {save(M.out.parms.vals.ages,file=file)}) 
    M_vals_all
    })
@@ -302,13 +367,15 @@ require(reshape2)
     labs(x="Age",y="Natural mortality")+
     theme(axis.text=element_text(size=16),axis.title=element_text(size=18),text=element_text(size = 14))
     print(Mplot_ages)
+
+     timestamp<-format(Sys.time(), "%a %b %d %Y %X")
+     timestamp<-gsub(":","",timestamp)
      output$downloadMplot_ages <- downloadHandler(
-    filename = function() { paste0('Mplot_ages',Sys.time(), '.png')},
-    content = function(file) {
+     filename = function() { paste0('Mplot_ages',timestamp, '.png')},
+     content = function(file) {
      png(file, type='cairo',width=800,height=720)
      print(Mplot_ages)
      dev.off()},contentType = 'image/png') 
-  
  })
 
 # Show the first "n" observations
@@ -374,6 +441,64 @@ require(reshape2)
    colnames(M_table_User)<-c("Method","M")
    M_table_User
  })
+
+  output$Mchoicelist<-renderUI({
+     if(all(is.na(M_vals_all()))) return(NULL)
+     User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
+     if(length(User_M)==0){User_M<-NA}
+     M_users<-"User input"
+     if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
+     M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_AC_pel","ZM_AC_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
+     output.Mlist<-M_methods[!is.na(M_vals_all())]
+     checkboxGroupInput("checkGroup","Available M estimators to combine",output.Mlist)
+  })
+
+#Show which methods are available to apply Hamel and Cope prior method
+   observe({
+    if(all(is.na(M_vals_all()))) return(NULL)
+    User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
+    if(length(User_M)==0){User_M<-NA}
+    M_users<-"User input"
+    if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
+    M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_AC_pel","ZM_AC_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
+    output.Mlist<-M_methods[!is.na(M_vals_all())]
+    if(input$selectall == 0) return(NULL) 
+    else if (input$selectall%%2 == 0)
+    {
+      updateCheckboxGroupInput(session,"checkGroup","Available M estimators to combine", output.Mlist)
+    }
+    else
+    {
+      updateCheckboxGroupInput(session,"checkGroup","Available M estimators to combine",choices= output.Mlist,selected= output.Mlist)
+    }
+  })
+
+  HC_M_prior<-eventReactive(input$run_HCprior,{
+      if(all(is.na(M_vals_all()))) return(NULL)
+      User_M<-as.numeric(trimws(unlist(strsplit(input$User_M,","))))
+      if(length(User_M)==0){User_M<-NA}
+      M_users<-"User input"
+      if(length(User_M)>1){M_users<-paste0("User input_",c(1:length(User_M)))}
+      M_methods<-c("FishLife","Then_nls","Then_lm","Hamel_Amax","Chen-Wat","ZM_AC_pel","ZM_AC_dem","Then_VBGF","Hamel_K","Jensen_K 1","Jensen_K 2","Gislason","Charnov","Pauly_lt","Roff","Jensen_Amat","Ri_Ef_Amat","Pauly_wt","McC&Gil","PnW","Lorenzen","GSI",M_users)
+      M_vals_prior<-M_vals_all()[M_methods%in%input$checkGroup]
+      if(input$M_CV_type=="normal"){CV.in.prior=0}
+      if(input$M_CV_type=="lognormal"){CV.in.prior=1}
+      if(input$M_CV==0){CV_M_in<-0.0000001}
+      if(input$M_CV>0){CV_M_in<-input$M_CV}
+      HC_M_prior<-priorcomb(M_vals_prior,rep(CV_M_in,length(M_vals_prior)),CV.in.prior,0.95)
+    #Add download
+      timestamp<-format(Sys.time(), "%a %b %d %Y %X")
+      timestamp<-gsub(":","",timestamp)
+      output$downloadHCpior <- downloadHandler(
+      filename = function() {  paste0("HCprior_out",timestamp,".DMP") },
+      content = function(file) {save(HC_M_prior,file=file)}) 
+      return(HC_M_prior)
+    }
+  )
+
+  output$HC_Mtable<- renderTable({
+    HC_M_prior()
+  })
 
  M.CV.method<- reactive({
   if(all(is.na(M_vals_all()))){return(NULL)}
@@ -514,14 +639,16 @@ require(reshape2)
     print(Mdist_plots)
   }
    Mdist_values<-dist.dat
-   output$downloadMdensityplots <- downloadHandler(
-   filename = function() { paste0('Mdensityplots',Sys.time(), '.png')},
-   content = function(file) {
+    timestamp<-format(Sys.time(), "%a %b %d %Y %X")
+    timestamp<-gsub(":","",timestamp)
+    output$downloadMdensityplots <- downloadHandler(
+    filename = function() { paste0('Mdensityplots',timestamp, '.png')},
+    content = function(file) {
      png(file, type='cairo',width=800,height=720)
      print(Mdist_plots)
      dev.off()},contentType = 'image/png') 
    output$downloadMdistvals <- downloadHandler(
-     filename = function() {  paste0("Mdist_values",Sys.time(),".DMP") },
+     filename = function() {  paste0("Mdist_values",timestamp,".DMP") },
      content = function(file) {save(Mdist_values,file=file)}) 
  	})
 
@@ -579,17 +706,19 @@ priorMupdate<-reactive({
 	 #   geom_vline(xintercept = quantile(cdf.out,0.5),color="darkblue",size=1.2)
 	 #   print(Mcomposite.densityplot)
    
-   output$downloadMcompositedensityplot <- downloadHandler(
-   filename = function() { paste0('Mcomposite_densityplot',Sys.time(), '.png')},
+    timestamp<-format(Sys.time(), "%a %b %d %Y %X")
+    timestamp<-gsub(":","",timestamp)
+    output$downloadMcompositedensityplot <- downloadHandler(
+   filename = function() { paste0('Mcomposite_densityplot',timestamp, '.png')},
    content = function(file) {
      png(file, type='cairo',width=800,height=720)
      print(Mcomposite.densityplot)
      dev.off()},contentType = 'image/png') 
    output$downloadMcompositedist <- downloadHandler(
-     filename = function() {  paste0("Mcomposite_samples",Sys.time(),".DMP") },
+     filename = function() {  paste0("Mcomposite_samples",timestamp,".DMP") },
      content = function(file) {save(Msamples,file=file)})     
     output$downloadMcompositedistupdated <- downloadHandler(
-     filename = function() { paste0("UpdatedMcomposite_samples",Sys.time(),".DMP") },
+     filename = function() { paste0("UpdatedMcomposite_samples",timestamp,".DMP") },
      content = function(file) {save(priorMupdate,file=file)})  
    })
 

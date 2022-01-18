@@ -110,8 +110,24 @@ library(shiny)
            column(6,downloadButton('downloadMcompositedist', 'Based on sample-sized')),
            column(6,downloadButton('downloadMcompositedistupdated', 'Bandwidth-adjusted')))
         )
+       ),
+       conditionalPanel(
+       h3("Composite M: inverse variance weighting"),
+       h5("This approach (Hamel and Cope in review) uses the variance of each method to weight the composite prior of M"),
+       condition="input.conditionedPanels==3",wellPanel(uiOutput("Mchoicelist"),
+       actionButton("selectall","Select All"),
+       br(),
+       br(),
+       actionButton("run_HCprior","Run composite",icon("play-circle"),style="font-size:110%;border:2px solid;background:#ffffcc"),
+       br(),
+       br(),
+       downloadButton('downloadHCpior', 'Download M prior object'),
+       h5(em("The downloaded object has summary statistics for the composite M distribution."))
        )
-       ), #end sidebar
+       )
+       ), 
+       #end sidebar
+ 
          mainPanel(
           tabsetPanel(
           tabPanel("M by method",
@@ -137,7 +153,7 @@ library(shiny)
          downloadButton('downloadCW_M_a', 'Download age-specific M values csv file'),
             value=1
           ),
-          tabPanel("Composite M",
+          tabPanel("Composite M: User weighted",
             h4("Method density and weights"),
             h5("When no uncertainty is expressed, point estimates with weights are shown"),
             h5("When uncertainty is expressed, the distribution of each method is given, with its frequency (determined by the weighting) plotted on the y-axis"),
@@ -156,9 +172,29 @@ library(shiny)
             # downloadButton('downloadMcompositedist', 'Download composite M as R object'),
             # downloadButton('downloadMcompositedistupdated', 'Download bandwidth-adjusted composite M as R object'),
             value=2
-          ), id="conditionedPanels"
-          )
+          ),
+          tabPanel("Composite M: Inverse variance",
+            h4("Hamel and Cope (in review) inverse weighting method"),
+            h5("This approach uses the variance of each method to weight the composite prior of M"),
+            tableOutput("HC_Mtable"),
+          #  plotOutput("Mdistplots"),
+          #   downloadButton('downloadMdensityplots', 'Download M density plot'),
+          #   downloadButton('downloadMdistvals', 'Download M density inputs as R object'),
+          #   br(),
+          #   br(),
+          #   br(),
+          #   h4("Composite natural mortality"),
+          #   h5(p(em("Blue vertical line indicates median value"))),
+          #   h5(p(em("First composite M object is based on the number of specified samples"))),
+          #   h5(p(em("Second composite M object is based on th adjusted bandwidth"))),
+          #   plotOutput("Mcomposite"),
+          #   downloadButton('downloadMcompositedensityplot', 'Download composite M density plot'),
+          #   # downloadButton('downloadMcompositedist', 'Download composite M as R object'),
+          #   # downloadButton('downloadMcompositedistupdated', 'Download bandwidth-adjusted composite M as R object'),
+            value=3
+          ), 
+          id="conditionedPanels"
+            )
       )
     ) 
 )
-#)
