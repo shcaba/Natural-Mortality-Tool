@@ -30,7 +30,7 @@ library(shiny)
             column(width=6,numericInput("t0", "VBGF t0", value=NA,min = -15, max = 15,step=0.01))),    
         fluidRow(column(width=6,numericInput("Age_in","Age (yr) specified for Chen-Wat:", value=NA,min=0.1, max=300, step=0.01)),
             column(width=6,numericInput("Lt_in", "Length (cm) specified for Gislason", value=NA,min = 0, max = 10000,step=0.01))),    
-        fluidRow(column(6,numericInput("Amat","Age at maturity (yrs)", value=NA,min = 0.01, max = 100,step=0.01)),
+        fluidRow(column(6,numericInput("Amat","Age at 50% maturity (yrs)", value=NA,min = 0.01, max = 100,step=0.01)),
             column(width=6,numericInput("Temp","Water temp. (in C):" , value=NA,min = 0.001, max = 60,step=0.01))),
         fluidRow(column(6,numericInput("Winf","VBGF Winf (in g):", value=NA,min = 0, max = 100000,step=0.1)),
             column(width=6,numericInput("kw","VBGF kw: ", value=NA,min = 0.001, max = 5,step=0.01))),
@@ -113,7 +113,7 @@ library(shiny)
        ),
        conditionalPanel(
        h3("Composite M: inverse variance weighting"),
-       h5("This approach (Hamel and Cope in review) uses the variance of each method to weight the composite prior of M"),
+       h5("This approach (Hamel 2015; Hamel and Cope in review) uses the variance of each method to weight the composite prior of M"),
        condition="input.conditionedPanels==3",wellPanel(uiOutput("Mchoicelist"),
        actionButton("selectall","Select All"),
        br(),

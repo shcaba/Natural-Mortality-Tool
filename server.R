@@ -212,7 +212,7 @@ priorcomb<-function(medianvec,sdvec,log,interval){
   yy<-dlnorm(xx,m,sdm)
   lines(xx,yy)}
     col1<-c("logmean","logsd","Mean","Median","CIlower","CIupper")
-    return(data.frame(Label=col1,Value=c(meanl,sd,exp(meanl+(sd^2)/2),exp(meanl),exp(li),exp(ui))))
+    return(data.frame(Label=col1,Value=signif(c(meanl,sd,exp(meanl+(sd^2)/2),exp(meanl),exp(li),exp(ui)),3)))
   }
 }
     
