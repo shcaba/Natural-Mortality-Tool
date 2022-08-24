@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyBS)
 
 #shinyUI(
   fluidPage(
@@ -10,6 +11,7 @@ library(shiny)
     br(),
     h4(p("Do you have any suggested methods to add? Please submit an issue with the recommendation" ,tags$a(href="https://github.com/shcaba/Natural-Mortality-Tool/issues", "here"))),
     h4(p("References for each included method can be found",tags$a(href="javascript:window.open('References_M.html', '_blank','width=600,height=400')", "here"))),
+    h4(p("Please cite this tool as", em("Cope, JM and Hamel, OS. in review. Upgrading from M version 0.2: An application-based method for practical estimation, evaluation and uncertainty characterization of natural mortality. Fisheries Research"))),
     
     sidebarLayout(
     sidebarPanel(
@@ -30,15 +32,31 @@ library(shiny)
             column(width=6,numericInput("t0", "VBGF t0", value=NA,min = -15, max = 15,step=0.01))),    
         fluidRow(column(width=6,numericInput("Age_in","Age (yr) specified for Chen-Wat:", value=NA,min=0.1, max=300, step=0.01)),
             column(width=6,numericInput("Lt_in", "Length (cm) specified for Gislason", value=NA,min = 0, max = 10000,step=0.01))),    
+          bsTooltip("Age_in", "Enter an age to get the age-specific estimate of M from the Chen and Watanabe 1989 method. See the age-specific estimates of M to get all ages.",
+                "right", options = list(container = "body")),
+          bsTooltip("Lt_in", "Enter an length (in cm) to get the length-specific estimate of M from the Gislason et al. 2010 method. See the age-specific estimates of M to get the length-coverted age-specific estimates from this method.",
+                "right", options = list(container = "body")),
         fluidRow(column(6,numericInput("Amat","Age at 50% maturity (yrs)", value=NA,min = 0.01, max = 100,step=0.01)),
             column(width=6,numericInput("Temp","Water temp. (in C):" , value=NA,min = 0.001, max = 60,step=0.01))),
         fluidRow(column(6,numericInput("Winf","VBGF Winf (in g):", value=NA,min = 0, max = 100000,step=0.1)),
             column(width=6,numericInput("kw","VBGF kw: ", value=NA,min = 0.001, max = 5,step=0.01))),
+          bsTooltip("Winf", "Winf is the asymptotic weight used in the weight-based version of the von Bertalanffy equation used in Pauly 1980.",
+                "right", options = list(container = "body")),
+          bsTooltip("kw", "kw is the growth coefficient of weight-based version of the von Bertalanffy equation used in Pauly 1980.",
+                "right", options = list(container = "body")),
         fluidRow(column(6,numericInput("Wdry","Total dry weight (in g):" ,value=NA,min = 0.01, max = 1000000,step=0.01)),
             column(width=6,numericInput("Wwet","Total wet weight (in g):" ,value=NA,min = 0.01, max = 1000000,step=0.01))),
-        fluidRow(column(width=6,numericInput("GSI","Gonadosomatic index (GSI):",value=NA,min = 0, max = 1,step=0.001)),
+          bsTooltip("Wdry", "An estimate of M is provided for the specific dry weight provided.",
+                "right", options = list(container = "body")),
+          bsTooltip("Wwet", "An estimate of M is provided for the specific wet weight provided",
+                "right", options = list(container = "body")),
+      fluidRow(column(width=6,numericInput("GSI","Gonadosomatic index (GSI):",value=NA,min = 0, max = 1,step=0.001)),
              column(width=6,textInput("User_M","User M input:",value=""))), 
-       ),
+          bsTooltip("GSI", "The GSI is calculated as gonad weight/total body weight.",
+                "right", options = list(container = "body")),
+      bsTooltip("User_M", "Examples of user input are values used in past analyses (e.g., from stock assessments) or other sources. You can add as many as you want, just separate the entries by commas.",
+                "right", options = list(container = "body")),
+    ),
        
        
        conditionalPanel(
