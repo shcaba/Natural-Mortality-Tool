@@ -16,7 +16,8 @@ The current version of the FishLife tool also needs to be installed:
 devtools::install_github("james-thorson/FishLife")
 library( FishLife )
 
-Fishlife currently only works using an older version of the rfishbase library. Please downloaded the zipped folder in this repository and replace any version in the library folder of you current version of R.
+Fishlife currently only works using an older version of the rfishbase library. 
+Please downloaded the zipped folder in this repository and replace any version in the library folder of you current version of R.
 
 Running the tool can be accomplished in any of the following ways:
 1) https://connect.fisheries.noaa.gov/natural-mortality-tool/
