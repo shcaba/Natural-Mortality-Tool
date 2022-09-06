@@ -11,13 +11,19 @@ You can also locally use this code by downloading the code and installing the be
 ```R
 packages<-c("shiny","fishmethods","ggplot2","truncnorm","data.table","RColorBrewer","viridis","reshape2")
 
-The current version of the FishLife tool only works using an older version of the rfishbase library. Please downloaded the zipped folder in this repository and replace any version in the library folder of you current version of R.
+
+The current version of the FishLife tool also needs to be installed:
+devtools::install_github("james-thorson/FishLife")
+library( FishLife )
+
+Fishlife currently only works using an older version of the rfishbase library. Please downloaded the zipped folder in this repository and replace any version in the library folder of you current version of R.
 
 Running the tool can be accomplished in any of the following ways:
-1) shiny::runApp(ENTER HERE USER PATH TO FOLDER CONTAINING THE NMT files)
-2) Open the server.r or ui.r files in RStudio and push the "Run App" button (top rigt corner of the source panel). 
+1) https://connect.fisheries.noaa.gov/natural-mortality-tool/
+2) shiny::runApp(ENTER HERE USER PATH TO FOLDER CONTAINING THE NMT files)
+3) Open the server.r or ui.r files in RStudio and push the "Run App" button (top rigt corner of the source panel). 
 	I recommend using the "Run External" option within the "Run App" button (see small arrow in button to change options)
-3) runGitHub("Natural-Mortality-Tool", "shcaba",destdir=mydir) where mydir is the path you chose to obtain results.
+4) runGitHub("Natural-Mortality-Tool", "shcaba",destdir=mydir) where mydir is the path you chose to obtain results.
 
 ```
 
