@@ -14,7 +14,7 @@ packages<-c("shiny","fishmethods","ggplot2","truncnorm","data.table","RColorBrew
 
 The current version of the FishLife tool also needs to be installed:
 devtools::install_github("james-thorson/FishLife")
-library( FishLife )
+library(FishLife)
 
 Fishlife currently only works using an older version of the rfishbase library. 
 Please downloaded the zipped folder in this repository and replace any version in the library folder of you current version of R.
