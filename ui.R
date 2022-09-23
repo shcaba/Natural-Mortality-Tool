@@ -11,7 +11,7 @@ library(shinyBS)
     br(),
     h4(p("Do you have any suggested methods to add? Please submit an issue with the recommendation" ,tags$a(href="https://github.com/shcaba/Natural-Mortality-Tool/issues", "here"))),
     h4(p("References for each included method can be found",tags$a(href="javascript:window.open('References_M.html', '_blank','width=600,height=400')", "here"))),
-    h4(p("Please cite this tool as", em("Cope, JM and Hamel, OS. in review. Upgrading from M version 0.2: An application-based method for practical estimation, evaluation and uncertainty characterization of natural mortality. Fisheries Research"))),
+    h4(p("Please cite this tool as", em("Cope, JM and Hamel, OS. 2022. Upgrading from M version 0.2: An application-based method for practical estimation, evaluation and uncertainty characterization of natural mortality. Fisheries Research 256",tags$a(href="https://doi.org/10.1016/j.fishres.2022.106493", "https://doi.org/10.1016/j.fishres.2022.106493")))),
     
     sidebarLayout(
     sidebarPanel(
