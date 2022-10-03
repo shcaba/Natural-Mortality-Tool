@@ -136,7 +136,7 @@ library(shinyBS)
        actionButton("selectall","Select All"),
        br(),
        br(),
-       actionButton("run_HCprior","Run composite",icon("play-circle"),style="font-size:110%;border:2px solid;background:#ffffcc"),
+       actionButton("run_HCprior","Run composite",icon("circle-play"),style="font-size:110%;border:2px solid;background:#ffffcc"),
        br(),
        br(),
        downloadButton('downloadHCpior', 'Download M prior object'),
