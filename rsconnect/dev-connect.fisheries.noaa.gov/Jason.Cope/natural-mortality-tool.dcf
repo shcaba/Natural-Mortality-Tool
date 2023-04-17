@@ -1,0 +1,13 @@
+name: natural-mortality-tool
+title: Natural-Mortality-Tool
+username: Jason.Cope
+account: Jason.Cope
+server: dev-connect.fisheries.noaa.gov
+hostUrl: https://dev-connect.fisheries.noaa.gov/__api__
+appId: 46
+bundleId: 625
+url: https://dev-connect.fisheries.noaa.gov/natural-mortality-tool/
+when: 1680020645.72184
+lastSyncTime: 1680020645.72184
+asMultiple: FALSE
+asStatic: FALSE

@@ -6,6 +6,7 @@ require(data.table)
 require(RColorBrewer) 
 require(viridis)
 require(reshape2)
+require(FishLife)
 
 #shinyServer(
   function(input, output, session) 
