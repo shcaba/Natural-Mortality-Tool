@@ -131,7 +131,7 @@ library(shinyBS)
        ),
        conditionalPanel(
        h3("Composite M: inverse variance weighting"),
-       h5("This approach (Hamel 2015; Hamel and Cope in review) uses the variance of each method to weight the composite prior of M"),
+       h5("This approach (Hamel 2015; Hamel and Cope 2022) uses the variance of each method to weight the composite prior of M"),
        condition="input.conditionedPanels==3",wellPanel(uiOutput("Mchoicelist"),
        actionButton("selectall","Select All"),
        br(),
@@ -192,7 +192,7 @@ library(shinyBS)
             value=2
           ),
           tabPanel("Composite M: Inverse variance",
-            h4("Hamel and Cope (in review) inverse weighting method"),
+            h4("Hamel and Cope (2022) inverse weighting method"),
             h5("This approach uses the variance of each method to weight the composite prior of M"),
             tableOutput("HC_Mtable"),
           #  plotOutput("Mdistplots"),
