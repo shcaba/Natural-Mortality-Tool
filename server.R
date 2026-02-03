@@ -294,7 +294,7 @@ priorcomb<-function(medianvec,sdvec,log,interval){
    timestamp<-format(Sys.time(), "%a %b %d %Y %X")
    timestamp<-gsub(":","",timestamp)
    output$downloadMandPs <- downloadHandler(
-     filename = function() {  paste0("M_parms_values_byage_out",timestamp,".DMP") },
+     filename = function() {  paste0("M_parms_values_byage_out",timestamp,".rds") },
      content = function(file) {save(M.out.parms.vals.ages,file=file)}) 
    M_vals_all
    })
@@ -491,7 +491,7 @@ priorcomb<-function(medianvec,sdvec,log,interval){
       timestamp<-format(Sys.time(), "%a %b %d %Y %X")
       timestamp<-gsub(":","",timestamp)
       output$downloadHCpior <- downloadHandler(
-      filename = function() {  paste0("HCprior_out",timestamp,".DMP") },
+      filename = function() {  paste0("HCprior_out",timestamp,".rds") },
       content = function(file) {save(HC_M_prior,file=file)}) 
       return(HC_M_prior)
     }
@@ -649,7 +649,7 @@ priorcomb<-function(medianvec,sdvec,log,interval){
      print(Mdist_plots)
      dev.off()},contentType = 'image/png') 
    output$downloadMdistvals <- downloadHandler(
-     filename = function() {  paste0("Mdist_values",timestamp,".DMP") },
+     filename = function() {  paste0("Mdist_values",timestamp,".rds") },
      content = function(file) {save(Mdist_values,file=file)}) 
  	})
 
@@ -716,10 +716,10 @@ priorMupdate<-reactive({
      print(Mcomposite.densityplot)
      dev.off()},contentType = 'image/png') 
    output$downloadMcompositedist <- downloadHandler(
-     filename = function() {  paste0("Mcomposite_samples",timestamp,".DMP") },
+     filename = function() {  paste0("Mcomposite_samples",timestamp,".rds") },
      content = function(file) {save(Msamples,file=file)})     
     output$downloadMcompositedistupdated <- downloadHandler(
-     filename = function() { paste0("UpdatedMcomposite_samples",timestamp,".DMP") },
+     filename = function() { paste0("UpdatedMcomposite_samples",timestamp,".rds") },
      content = function(file) {save(priorMupdate,file=file)})  
    })
 

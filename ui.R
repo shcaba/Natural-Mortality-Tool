@@ -7,7 +7,7 @@ library(shinyBS)
     h5(p(em("This tool employs various empirical estimators of natural mortality."))),
     h5(p(em("As the user enters values for the below input parameters, estimates will be displayed in the main panel."))), 
     h5(p(em("Uncertainty can also be added to the estimates by chosing a coefficient of variation (CV) value and error distribution type."))),
-    h5(p(em("Downloaded R objects (.DMP) can be loaded directly into R or, if using the R terminal, drag and drop in."))),
+    h5(p(em("Downloaded R objects (.RDS) can be loaded directly into R or, if using the R terminal, drag and drop in."))),
     br(),
     h4(p("Do you have any suggested methods to add? Please submit an issue with the recommendation" ,tags$a(href="https://github.com/shcaba/Natural-Mortality-Tool/issues", "here"))),
     h4(p("References for each included method can be found",tags$a(href="javascript:window.open('References_M.html', '_blank','width=600,height=400')", "here"))),
@@ -121,7 +121,7 @@ library(shinyBS)
            column(6,numericInput("samp.num","Prior sample #",value=1000000,min = 0, max = 10000000,step=1)),
            column(6,numericInput("ad.bw","Bandwidth multiplier",value=1,min = 0.0001, max = 100,step=0.01))),
         h4(p("Composite M prior downloads")),
-        h5(p(em("Downloads are DMP files that can be loaded directly into R"))),
+        h5(p(em("Downloads are RDS files that can be loaded directly into R"))),
         h5(p(em("Higher sample sizes create a composite distribution truer to the component distributions"))),
         h5(p(em("Adjusting bandwidth >1 creates a more diffuse composite distribution"))),
         fluidRow(

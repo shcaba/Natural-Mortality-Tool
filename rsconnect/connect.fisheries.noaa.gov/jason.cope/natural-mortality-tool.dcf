@@ -5,9 +5,7 @@ account: jason.cope
 server: connect.fisheries.noaa.gov
 hostUrl: https://connect.fisheries.noaa.gov/__api__
 appId: 46
-bundleId: 697
+bundleId: 3948
 url: https://connect.fisheries.noaa.gov/natural-mortality-tool/
-when: 1681691966.93427
-lastSyncTime: 1681691966.93428
 asMultiple: FALSE
 asStatic: FALSE
