@@ -1,6 +1,6 @@
 # The Natural Mortality Tool (NMT)
 
-The Natural Mortality tool offers an accessible way to estimate natural mortality fro a variety of life history information. The tool also offers a means to include uncertainty and combine multiple estimators into a non-parametric distribution.
+The Natural Mortality tool offers an accessible way to estimate natural mortality from a variety of life history information. The tool also offers a means to include uncertainty and combine multiple estimators into a non-parametric distribution.
 
 The publication for the NMT can be found in this repository and at https://doi.org/10.1016/j.fishres.2022.106493.
 Please use this to cite the tool.
